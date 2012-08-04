@@ -69,7 +69,7 @@ class Finite<A> {
            (int i) => i < this.card ? this[i] : fin[i - this.card]);
 
    /**
-    * Cartesian product
+    * Cartesian product.
     */
    Finite<Pair> operator *(Finite fin) =>
        new Finite<Pair>(
@@ -81,12 +81,12 @@ class Finite<A> {
            });
 
    /**
-    * [Finite] is a functor
+    * [Finite] is a functor.
     */
-   Finite map(f(A)) => this.setIndexer(compose(f, indexer));
+   Finite map(f(A x)) => this.setIndexer(compose(f, indexer));
 
    /**
-    * [Finite] is an applicative functor
+    * [Finite] is an applicative functor.
     */
    Finite apply(Finite fin) => (this * fin).map((pair) => pair.fst(pair.snd));
 }
@@ -124,7 +124,7 @@ class LazyList<A> {
     return _cachedTail;
   }
 
-  void forEach(f(A)) {
+  void forEach(f(A x)) {
     LazyList<A> s = this;
     while (!s.isEmpty()) {
       f(s.head);
@@ -162,7 +162,7 @@ class LazyList<A> {
   /**
    * [LazyList] is a functor.
    */
-  LazyList map(f(A)) => this.isEmpty()
+  LazyList map(f(A x)) => this.isEmpty()
       ? new LazyList.empty()
       : new LazyList(() => new Pair(f(head), tail.map(f)));
 
@@ -251,7 +251,7 @@ class Enumeration<A> {
   /**
    * [Enumeration] is a functor.
    */
-  Enumeration map(f(A)) => new Enumeration(parts.map((p) => p.map(f)));
+  Enumeration map(f(A x)) => new Enumeration(parts.map((p) => p.map(f)));
 
   /**
    * [: _reversals([1,2,3,...]) :] is [: [[1], [2,1], [3,2,1], ...] :].
