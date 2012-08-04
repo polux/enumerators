@@ -81,12 +81,12 @@ class Finite<A> {
            });
 
    /**
-    * Finite<A> seen as a functor
+    * [Finite] is a functor
     */
    Finite map(f(A)) => this.setIndexer(compose(f, indexer));
 
    /**
-    * Finite<A> seen as an applicative functor
+    * [Finite] is an applicative functor
     */
    Finite apply(Finite fin) => (this * fin).map((pair) => pair.fst(pair.snd));
 }
@@ -160,14 +160,14 @@ class LazyList<A> {
       this.map((x) => s.map((y) => new Pair(x,y))).concat();
 
   /**
-   * A stream is a functor.
+   * [LazyList] is a functor.
    */
   LazyList map(f(A)) => this.isEmpty()
       ? new LazyList.empty()
       : new LazyList(() => new Pair(f(head), tail.map(f)));
 
   /**
-   * A stream is an applicative functor.
+   * [LazyList] is an applicative functor.
    */
   LazyList apply(LazyList s) => (this * s).map((pair) => pair.fst(pair.snd));
 
@@ -235,8 +235,6 @@ class Enumeration<A> {
 
   A operator [](int i) => _index(parts, i);
 
-//  LazyList get values() => parts.map((f) => new Lazy
-
   static LazyList<Finite> _zipPlus(LazyList<Finite> xs, LazyList<Finite> ys) =>
       (xs.isEmpty() || ys.isEmpty())
           ? xs + ys
@@ -251,7 +249,7 @@ class Enumeration<A> {
       new Enumeration<A>(_zipPlus(this.parts, e.parts));
 
   /**
-   * An enumeration is a functor.
+   * [Enumeration] is a functor.
    */
   Enumeration map(f(A)) => new Enumeration(parts.map((p) => p.map(f)));
 
@@ -312,7 +310,7 @@ class Enumeration<A> {
 
 
   /**
-  * An Enumeration is an applicative functor.
+  * [Enumeration] is an applicative functor.
   */
   Enumeration apply(Enumeration e) =>
       (this * e).map((pair) => pair.fst(pair.snd));
