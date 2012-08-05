@@ -29,6 +29,9 @@ class Cons extends LList {
   toString() => "$x:$xs";
 }
 
+nil() => new Nil();
+cons(x) => (xs) => new Cons(x,xs);
+
 class Tree {}
 class Leaf extends Tree {
   final x;
@@ -41,33 +44,42 @@ class Fork extends Tree {
   toString() => "Fork($l, $r)";
 }
 
+leaf(x) => new Leaf(x);
+fork(t1) => (t2) => new Fork(t1, t2);
+
 /** demo **/
 
 listsOfBools() {
-  // definition of the booleans' enumerator
+  // we define an enumerator of booleans
   final trueEnum = singleton(true);
   final falseEnum = singleton(false);
   final boolEnum = (trueEnum + falseEnum).pay();
-  final testEnum = fix((e) => (trueEnum + e.map((x) => new Leaf(x))).pay());
 
-  // definition of the lists of booleans' enumerator
-  final nilEnum = singleton(new Nil());
-  consEnum(e) =>
-      singleton((x) => (xs) => new Cons(x, xs)).apply(boolEnum).apply(e);
+  // we define an enumerator of list of booleans
+  final nilEnum = singleton(nil());
+  consEnum(e) => singleton(cons).apply(boolEnum).apply(e);
   final listEnum = fix((e) => (nilEnum + consEnum(e)).pay());
 
-  // the enumerator iterates over finite sets of lists of booleans, the first
-  // set contains exactly the lists made of 1 constructor (i.e. nil), the
-  // second set the lists made of 2 constructors (there aren't any), etc.
+  // listEnum is made of finite sets of lists of booleans (parts), the first
+  // part contains exactly the lists made of 1 constructor (i.e. nil), the
+  // second part the lists made of 2 constructors (there aren't any), etc.
   var counter = 0;
   listEnum.parts.take(10).forEach((f) {
     print("all the lists made of $counter constructors: $f");
     counter++;
   });
 
-  // we can access big lists pretty fast
+  // we can access big parts pretty fast
   final trues = listEnum.parts[81][0];
   print("the first list made of 40 elements (81 constructors): $trues");
+
+  // toLazyList() iterates over the enumeration as a whole, seen as a
+  // concatenation of its parts
+  counter = 0;
+  listEnum.toLazyList().take(10).forEach((l) {
+    print("list of booleans #$counter: $l");
+    counter++;
+  });
 
   // we can access the nth list of the enumeration very fast, even for big ns
   print("member 10^10 of the enumeration: ${listEnum[Math.pow(10,10)]}");
@@ -80,8 +92,8 @@ treesOfNaturals() {
   final natEnum = fix((e) => (zeroEnum + succEnum(e)).pay());
 
   // enumeration of the trees of naturals
-  final leafEnum = singleton((n) => new Leaf(n)).apply(natEnum);
-  forkEnum(e) => singleton((l) => (r) => new Fork(l, r)).apply(e).apply(e);
+  final leafEnum = singleton(leaf).apply(natEnum);
+  forkEnum(e) => singleton(fork).apply(e).apply(e);
   final treeEnum = fix((e) => (leafEnum + forkEnum(e)).pay());
 
   // the set made of naturals of size 15 is {15}

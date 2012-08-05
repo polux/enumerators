@@ -57,7 +57,6 @@ class Finite<A> {
      return aux(0);
    }
 
-
    A operator [](int index) => indexer(index);
 
    /**
@@ -151,7 +150,7 @@ class LazyList<A> {
    */
   LazyList concat() => this.isEmpty()
       ? new LazyList.empty()
-      : this.head + this.tail.concat();
+      : new LazyList(() => (this.head + this.tail.concat()).gen());
 
   /**
    * Cartesian product.
@@ -234,6 +233,9 @@ class Enumeration<A> {
   }
 
   A operator [](int i) => _index(parts, i);
+
+  LazyList<A> toLazyList() =>
+      parts.map((f) => f.toLazyList()).concat();
 
   static LazyList<Finite> _zipPlus(LazyList<Finite> xs, LazyList<Finite> ys) =>
       (xs.isEmpty() || ys.isEmpty())
