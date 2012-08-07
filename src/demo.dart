@@ -15,6 +15,7 @@
 // Author: Paul Brauner (polux@google.com)
 
 #library('demo');
+#import('enumerators.dart');
 #import('combinators.dart');
 
 /** datatypes **/
@@ -47,7 +48,18 @@ class Fork extends Tree {
 leaf(x) => new Leaf(x);
 fork(t1) => (t2) => new Fork(t1, t2);
 
-/** demo **/
+/** demos **/
+
+predefinedCombinators() {
+  final e = new Enumerators();
+  final strings = e.strings.parts[20];
+  final n = (strings.card * 0.123).toInt();
+  print("the ${n}th string of size 20: ${strings[n]}");
+  print("the ints of size 200: ${e.ints.parts[200]}");
+  print("a set of strings: ${e.setsOf(e.strings)[123456789]}");
+  print("a map from nats to lists of ints: "
+        "${e.mapsOf(e.nats, e.listsOf(e.ints))[123456789]}");
+}
 
 listsOfBools() {
   // we define an enumerator of booleans
@@ -70,7 +82,7 @@ listsOfBools() {
   });
 
   // we can access big parts pretty fast
-  final trues = listEnum.parts[81][0];
+  final trues = listEnum.parts[181][0];
   print("the first list made of 40 elements (81 constructors): $trues");
 
   // toLazyList() iterates over the enumeration as a whole, seen as a
@@ -118,6 +130,8 @@ treesOfNaturals() {
 }
 
 main() {
+  predefinedCombinators();
+  print("");
   listsOfBools();
   print("");
   treesOfNaturals();

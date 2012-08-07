@@ -20,6 +20,8 @@ class Pair<A,B> {
   final A fst;
   final B snd;
   Pair(this.fst, this.snd);
+  Pair<A,B> setFst(A x) => new Pair<A,B>(x, snd);
+  Pair<A,B> setSnd(B x) => new Pair<A,B>(fst, x);
   toString() => "($fst, $snd)";
 }
 
@@ -328,5 +330,6 @@ class Enumeration<A> {
 
 // shortcuts
 
+Enumeration empty() => new Enumeration.empty();
 Enumeration singleton(x) => new Enumeration.singleton(x);
 Enumeration fix(Enumeration f(Enumeration)) => new Enumeration.fix(f);
