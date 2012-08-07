@@ -18,15 +18,15 @@
 #import('enumerators.dart');
 
 class _LList {
-  abstract boolean isEmpty();
+  abstract bool isEmpty();
 
   List toList() {
     var res = [];
     var it = this;
     while (!it.isEmpty()) {
       _Cons cons = it;
-      res.add(it.x);
-      it = it.xs;
+      res.add(cons.x);
+      it = cons.xs;
     }
     return res;
   }
