@@ -61,8 +61,8 @@ predefinedCombinators() {
   final n = (strings.card * 0.123).toInt();
   // as well as fast access to the nth element of a part
   print("the ${n}th string of size 20: ${strings[n]}");
-  // we can also quickly access the nth element of an enumeration seen as
-  // an infinite list made of the concatenation of its parts
+  // we quickly access the nth element of an enumeration seen as the
+  // concatenation of its parts
   print("the 714680th string: ${c.strings[71468]}");
   // we can also print a part as a whole, but it might be huge
   print("the ints of size 200: ${c.ints.parts[200]}");
