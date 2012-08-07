@@ -54,7 +54,7 @@ predefinedCombinators() {
   // ideally, Combinators is a module but the VM doesn't support lazy
   // initialization of toplevel variables yet
   final c = new Combinators();
-  // strings is an enumeration: a infinite list of finite parts
+  // c.strings is an enumeration: a infinite list of finite parts
   // part 0 contains the strings of size 0, part 1 the strings of size 1, etc.
   final strings = c.strings.parts[20];
   // we have fast access to the cardinal of a part
