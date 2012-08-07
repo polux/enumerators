@@ -51,14 +51,14 @@ fork(t1) => (t2) => new Fork(t1, t2);
 /** demos **/
 
 predefinedCombinators() {
-  final e = new Enumerators();
-  final strings = e.strings.parts[20];
+  final c = new Combinators();
+  final strings = c.strings.parts[20];
   final n = (strings.card * 0.123).toInt();
   print("the ${n}th string of size 20: ${strings[n]}");
-  print("the ints of size 200: ${e.ints.parts[200]}");
-  print("a set of strings: ${e.setsOf(e.strings)[123456789]}");
+  print("the ints of size 200: ${c.ints.parts[200]}");
+  print("a set of strings: ${c.setsOf(c.strings)[123456789]}");
   print("a map from nats to lists of ints: "
-        "${e.mapsOf(e.nats, e.listsOf(e.ints))[123456789]}");
+        "${c.mapsOf(c.nats, c.listsOf(c.ints))[123456789]}");
 }
 
 listsOfBools() {

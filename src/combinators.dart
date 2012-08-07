@@ -15,321 +15,124 @@
 // Author: Paul Brauner (polux@google.com)
 
 #library('combinators');
+#import('enumerators.dart');
 
-class Pair<A,B> {
-  final A fst;
-  final B snd;
-  Pair(this.fst, this.snd);
-  Pair<A,B> setFst(A x) => new Pair<A,B>(x, snd);
-  Pair<A,B> setSnd(B x) => new Pair<A,B>(fst, x);
-  toString() => "($fst, $snd)";
-}
+class _LList {
+  abstract boolean isEmpty();
 
-Function compose(Function f1, Function f2) =>
-    (x) => f1(f2(x));
-
-/**
- * A finite set.
- */
-class Finite<A> {
-   final int card;
-   final Function indexer;
-
-   Finite(this.card, this.indexer);
-
-   factory Finite.empty() => new Finite(0, (i) { throw "index out of range"; });
-
-   factory Finite.singleton(A x) => new Finite(1, (i) {
-     if (i == 0) return x;
-     else throw "index out of range";
-   });
-
-   Finite<A> setCard(int newCard) => new Finite<A>(newCard, indexer);
-   Finite<A> setIndexer(Function newIndexer) => new Finite<A>(card, newIndexer);
-
-   String toString() {
-     final strings = toLazyList().map((f) => f.toString()).toList();
-     return "{${Strings.join(strings, ", ")}}";
-   }
-
-   LazyList<A> toLazyList() {
-     aux(i) => (i == this.card)
-         ? new LazyList.empty()
-         : new LazyList(() => new Pair(this[i], aux(i+1)));
-     return aux(0);
-   }
-
-   A operator [](int index) => indexer(index);
-
-   /**
-    * Union.
-    */
-   Finite<A> operator +(Finite<A> fin) =>
-       new Finite<A>(
-           this.card + fin.card,
-           (int i) => i < this.card ? this[i] : fin[i - this.card]);
-
-   /**
-    * Cartesian product.
-    */
-   Finite<Pair> operator *(Finite fin) =>
-       new Finite<Pair>(
-           this.card * fin.card,
-           (int i) {
-             int q = i ~/ fin.card;
-             int r = i % fin.card;
-             return new Pair(this[q], fin[r]);
-           });
-
-   /**
-    * [Finite] is a functor.
-    */
-   Finite map(f(A x)) => this.setIndexer(compose(f, indexer));
-
-   /**
-    * [Finite] is an applicative functor.
-    */
-   Finite apply(Finite fin) => (this * fin).map((pair) => pair.fst(pair.snd));
-}
-
-/**
- * A lazy list, possibly infinite.
- */
-class LazyList<A> {
-  final Function gen;
-  A _cachedHead;
-  LazyList<A> _cachedTail;
-
-  LazyList(Pair<A, LazyList<A>> gen()) : this.gen = gen;
-  factory LazyList.empty() => new LazyList(null);
-  factory LazyList.singleton(A x) =>
-      new LazyList(() => new Pair(x, new LazyList.empty()));
-  factory LazyList.repeat(A x) =>
-      new LazyList(() => new Pair(x, new LazyList.repeat(x)));
-
-  bool isEmpty() => gen === null;
-
-  void _force() {
-    final pair = gen();
-    _cachedHead = pair.fst;
-    _cachedTail = pair.snd;
-  }
-
-  get head() {
-    if (_cachedHead == null) _force();
-    return _cachedHead;
-  }
-
-  get tail() {
-    if (_cachedTail == null) _force();
-    return _cachedTail;
-  }
-
-  void forEach(f(A x)) {
-    LazyList<A> s = this;
-    while (!s.isEmpty()) {
-      f(s.head);
-      s = s.tail;
+  List toList() {
+    var res = [];
+    var it = this;
+    while (!it.isEmpty()) {
+      _Cons cons = it;
+      res.add(it.x);
+      it = it.xs;
     }
-  }
-
-  LazyList take(int length) {
-    aux(LazyList rest, int n) => (n == 0 || rest.isEmpty())
-        ? new LazyList.empty()
-        : new LazyList(() => new Pair(rest.head, aux(rest.tail, n - 1)));
-    return aux(this, length);
-  }
-
-  /**
-   * [s] appended to [this].
-   */
-  LazyList operator +(LazyList s) => this.isEmpty()
-      ? s
-      : new LazyList(() => new Pair(head, tail + s));
-
-  /**
-   * Concatenates this, Assuming [: A = Stream<Stream<B>> :].
-   */
-  LazyList concat() => this.isEmpty()
-      ? new LazyList.empty()
-      : new LazyList(() => (this.head + this.tail.concat()).gen());
-
-  /**
-   * Cartesian product.
-   */
-  LazyList operator *(LazyList s) =>
-      this.map((x) => s.map((y) => new Pair(x,y))).concat();
-
-  /**
-   * [LazyList] is a functor.
-   */
-  LazyList map(f(A x)) => this.isEmpty()
-      ? new LazyList.empty()
-      : new LazyList(() => new Pair(f(head), tail.map(f)));
-
-  /**
-   * [LazyList] is an applicative functor.
-   */
-  LazyList apply(LazyList s) => (this * s).map((pair) => pair.fst(pair.snd));
-
-  /**
-   * [: [a,b,c,d].zipWith(f, [x,y,z]) :] is [: [f(a,z), f(b,y), f(c,z)] :].
-   */
-  LazyList zipWith(f(x,y), LazyList ys) => (this.isEmpty() || ys.isEmpty())
-      ? new LazyList.empty()
-      : new LazyList(() =>
-          new Pair(f(this.head, ys.head), this.tail.zipWith(f, ys.tail)));
-
-  /**
-   * [: [a,b,c].foldLeft(zero, +) :] is [: zero + a + b + c :].
-   */
-  foldLeft(zero, plus) {
-    var result = zero;
-    this.forEach((x) { result = plus(result, x); });
-    return result;
-  }
-
-  LazyList<LazyList> tails() => this.isEmpty()
-      ? new LazyList.singleton(new LazyList.empty())
-      : new LazyList(() => new Pair(this, this.tail.tails()));
-
-  /**
-   * Linear indexing.
-   */
-  A operator[](int index) {
-    getAt(LazyList l, int i) {
-      if (l.isEmpty()) throw "index out of range";
-      if (i == 0) return l.head;
-      return getAt(l.tail, i - 1);
-    }
-    return getAt(this, index);
-  }
-
-  List<A> toList() {
-    final res = [];
-    this.forEach((A x) { res.add(x); });
     return res;
   }
-
-  String toString() => toList().toString();
 }
 
-/**
- * An enumeration of finite parts of A.
- */
-class Enumeration<A> {
-  final LazyList<Finite<A>> parts;
+class _Nil extends _LList {
+  toString() => "nil";
+  isEmpty() => true;
+}
 
-  Enumeration(this.parts);
-  factory Enumeration.empty() => new Enumeration(new LazyList.empty());
-  factory Enumeration.singleton(A x) =>
-      new Enumeration(new LazyList.singleton(new Finite.singleton(x)));
-  factory Enumeration.fix(Enumeration f(Enumeration)) =>
-      new Enumeration(
-        new LazyList(() => f(new Enumeration.fix(f)).parts.gen()));
+class _Cons extends _LList {
+  final x, xs;
+  _Cons(this.x, this.xs);
+  toString() => "$x:$xs";
+  isEmpty() => false;
+}
 
-  _index(LazyList<Finite<A>> ps, int i) {
-    if (ps.isEmpty()) throw "index out of range";
-    if (i < ps.head.card) return ps.head[i];
-    return _index(ps.tail, i - ps.head.card);
+_nil() => new _Nil();
+_cons(x) => (xs) => new _Cons(x,xs);
+
+List _foldLeft(list, zero, plus) {
+  var result = zero;
+  for (final x in list) {
+    result = plus(result, x);
+  }
+  return result;
+}
+
+Map _toMap(List<Pair> assocs) {
+  var res = new Map();
+  for (final assoc in assocs) {
+    res[assoc.fst] = assoc.snd;
+  }
+  return res;
+}
+
+class Combinators {
+  var _strings;
+  var _nats;
+  var _ints;
+
+  Enumeration<String> get strings() {
+    if (_strings === null) { _strings = _mkStrings(); }
+    return _strings;
   }
 
-  A operator [](int i) => _index(parts, i);
+  Enumeration<int> get nats() {
+    if (_nats === null) { _nats = _mkNats(); }
+    return _nats;
+  }
 
-  LazyList<A> toLazyList() =>
-      parts.map((f) => f.toLazyList()).concat();
+  Enumeration<int> get ints() {
+    if (_ints === null) { _ints = _mkInts(); }
+    return _ints;
+  }
 
-  static LazyList<Finite> _zipPlus(LazyList<Finite> xs, LazyList<Finite> ys) =>
-      (xs.isEmpty() || ys.isEmpty())
-          ? xs + ys
-          : new LazyList(() =>
-                new Pair(xs.head + ys.head, _zipPlus(xs.tail, ys.tail)));
+  Enumeration<List> listsOf(Enumeration enum) {
+   final nils = singleton(_nil());
+   consesOf(e) => singleton(_cons).apply(enum).apply(e);
+   final llists = fix((e) => (nils + consesOf(e).pay()));
+   return llists.map((ll) => ll.toList());
+  }
 
-  /**
-   * Disjoint union (it is up to the user to make sure that operands are
-   * disjoint).
-   */
-  Enumeration<A> operator +(Enumeration<A> e) =>
-      new Enumeration<A>(_zipPlus(this.parts, e.parts));
-
-  /**
-   * [Enumeration] is a functor.
-   */
-  Enumeration map(f(A x)) => new Enumeration(parts.map((p) => p.map(f)));
-
-  /**
-   * [: _reversals([1,2,3,...]) :] is [: [[1], [2,1], [3,2,1], ...] :].
-   */
-  static LazyList<LazyList> _reversals(LazyList l) {
-    go(LazyList rev, LazyList xs) {
-      if (xs.isEmpty()) return new LazyList.empty();
-      final newrev = new LazyList(() => new Pair(xs.head, rev));
-      return new LazyList(() => new Pair(newrev, go(newrev, xs.tail)));
+  Enumeration<Set> setsOf(Enumeration enum) {
+    // bijection from lists of nats to sets of values
+    bij(list) {
+      var res = new Set();
+      int sum = -1;
+      for (final x in list) {
+        sum += 1 + x;
+        res.add(enum[sum]);
+      }
+      return res;
     }
-    return go(new LazyList.empty(), l);
+    return listsOf(nats).map(bij);
   }
 
-  static _prod(LazyList<Finite> xs, LazyList<LazyList<Finite>> yss) {
-    if (xs.isEmpty() || yss.isEmpty()) return new LazyList.empty();
+  Enumeration<Map> mapsOf(Enumeration keys, Enumeration values) {
+    // bijection from lists of (nat x value) to maps of (key x value)
+    bij(assocs) {
+      var res = new Map();
+      int sum = -1;
+      for (final assoc in assocs) {
+        sum += 1 + assoc.fst;
+        res[keys[sum]] = assoc.snd;
+      }
+      return res;
+    }
+    return listsOf(nats * values).map(bij);
 
-    goX(ry) =>
-        xs.tail.tails().map((fs) => _conv(fs)(ry));
-
-    goY(LazyList<Finite> ry(), LazyList<LazyList<Finite>> rys()) =>
-        new LazyList(() {
-          final _ry = ry();
-          final _rys = rys();
-          return new Pair(
-            _conv(xs)(_ry),
-            _rys.isEmpty() ? goX(_ry) : goY(() => _rys.head, () => _rys.tail));
-        });
-
-    return goY(() => yss.head, () => yss.tail);
   }
 
-  static _conv(LazyList<Finite> xs) =>
-      (LazyList<Finite> ys) {
-          // a much simpler def would be "union (zipWith (*) xs ys)"
-          // but according to the paper this introduces memory leaks
-          final xsCards = xs.map((f) => f.card);
-          final ysCards = ys.map((f) => f.card);
-          final cardsProducts = xsCards.zipWith((c1, c2) => c1 * c2, ysCards);
-          final newCard = cardsProducts.foldLeft(0, (c1, c2) => c1 + c2);
+  Enumeration<int> _mkNats() {
+    final zeros = singleton(0);
+    succOf(e) => e.map((n) => n + 1);
+    return fix((e) => (zeros + succOf(e)).pay());
+  }
 
-          newIndexer(i) {
-            final unionOfProducts =
-                xs.zipWith((f1, f2) => f1 * f2, ys)
-                  .foldLeft(new Finite.empty(), (f1, f2) => f1 + f2);
-            return unionOfProducts[i];
-          }
+  Enumeration<int> _mkInts() {
+    return nats + nats.map((n) => -n);
+  }
 
-          return new Finite(newCard, newIndexer);
-      };
-
-  /**
-   * Cartesian product.
-   */
-  Enumeration operator *(Enumeration<A> e) =>
-      new Enumeration(_prod(this.parts, _reversals(e.parts)));
-
-
-  /**
-  * [Enumeration] is an applicative functor.
-  */
-  Enumeration apply(Enumeration e) =>
-      (this * e).map((pair) => pair.fst(pair.snd));
-
-  /**
-   * Pays for one recursive call.
-   */
-  Enumeration<A> pay() => new Enumeration(
-    new LazyList(() => new Pair(new Finite.empty(), this.parts)));
-
-  toString() => "Enum $parts";
+  Enumeration<String> _mkStrings() {
+   final cs = "abcdefghijklmnopqrstuvwxyz".splitChars();
+   final chars = _foldLeft(cs.map(singleton), empty(), (e1, e2) => e1 + e2);
+   final charsLists = listsOf(chars);
+   return charsLists.map(Strings.concatAll);
+  }
 }
-
-// shortcuts
-
-Enumeration empty() => new Enumeration.empty();
-Enumeration singleton(x) => new Enumeration.singleton(x);
-Enumeration fix(Enumeration f(Enumeration)) => new Enumeration.fix(f);

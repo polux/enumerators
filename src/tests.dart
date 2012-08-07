@@ -14,11 +14,11 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-#import('combinators.dart');
+#import('enumerators.dart');
 
 finiteFromList(l) => new Finite(l.length, (i) => l[i]);
 lazyListFromList(l) {
-  aux(i) => (i == l.length) 
+  aux(i) => (i == l.length)
       ? new LazyList.empty()
       : new LazyList(() => new Pair(l[i], aux(i+1)));
   return aux(0);
