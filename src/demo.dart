@@ -68,7 +68,7 @@ predefinedCombinators() {
   print("the ints of size 200: ${c.ints.parts[200]}");
   // setsOf is a combinator: it takes an Enumeration and returns an Enumeration
   print("a set of strings: ${c.setsOf(c.strings)[123456789]}");
-  // we can abitrarily nest combinators
+  // we can arbitrarily nest combinators
   print("a map from nats to lists of ints: "
         "${c.mapsOf(c.nats, c.listsOf(c.ints))[123456789]}");
 }
