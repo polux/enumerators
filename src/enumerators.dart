@@ -218,15 +218,21 @@ class LazyList<A> {
  * An enumeration of finite parts of A.
  */
 class Enumeration<A> {
-  final LazyList<Finite<A>> parts;
+  // morally final, but Enumeration.fix needs to reset it
+  LazyList<Finite<A>> parts;
 
   Enumeration(this.parts);
+  factory Enumeration._fromGen(Pair<Finite<A>, LazyList<Finite<A>>> gen()) =>
+      new Enumeration(new LazyList(gen));
   factory Enumeration.empty() => new Enumeration(new LazyList.empty());
   factory Enumeration.singleton(A x) =>
       new Enumeration(new LazyList.singleton(new Finite.singleton(x)));
-  factory Enumeration.fix(Enumeration f(Enumeration)) =>
-      new Enumeration(
-        new LazyList(() => f(new Enumeration.fix(f)).parts.gen()));
+  factory Enumeration.fix(Enumeration f(Enumeration)) {
+    final enum = new Enumeration(null);
+    final result = f(enum);
+    enum.parts = result.parts;
+    return result;
+  }
 
   _index(LazyList<Finite<A>> ps, int i) {
     if (ps.isEmpty()) throw "index out of range";
@@ -250,12 +256,13 @@ class Enumeration<A> {
    * disjoint).
    */
   Enumeration<A> operator +(Enumeration<A> e) =>
-      new Enumeration<A>(_zipPlus(this.parts, e.parts));
+      new Enumeration<A>._fromGen(() => _zipPlus(this.parts, e.parts).gen());
 
   /**
    * [Enumeration] is a functor.
    */
-  Enumeration map(f(A x)) => new Enumeration(parts.map((p) => p.map(f)));
+  Enumeration map(f(A x)) =>
+      new Enumeration._fromGen(() => parts.map((p) => p.map(f)).gen());
 
   /**
    * [: _reversals([1,2,3,...]) :] is [: [[1], [2,1], [3,2,1], ...] :].
@@ -309,8 +316,9 @@ class Enumeration<A> {
   /**
    * Cartesian product.
    */
-  Enumeration operator *(Enumeration<A> e) =>
-      new Enumeration(_prod(this.parts, _reversals(e.parts)));
+  Enumeration<Pair> operator *(Enumeration<A> e) =>
+      new Enumeration<Pair>._fromGen(() =>
+          _prod(this.parts, _reversals(e.parts)).gen());
 
 
   /**
@@ -322,8 +330,8 @@ class Enumeration<A> {
   /**
    * Pays for one recursive call.
    */
-  Enumeration<A> pay() => new Enumeration(
-    new LazyList(() => new Pair(new Finite.empty(), this.parts)));
+  Enumeration<A> pay() => new Enumeration<A>._fromGen(
+      () => new Pair(new Finite.empty(), this.parts));
 
   toString() => "Enum $parts";
 }

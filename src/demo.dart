@@ -48,6 +48,17 @@ class Fork extends Tree {
 leaf(x) => new Leaf(x);
 fork(t1) => (t2) => new Fork(t1, t2);
 
+/** utils **/
+
+// the VM's Math.pow doesn't support big ints yet
+int pow(n, p) {
+  int res = 1;
+  for (int i = 0; i < p; i++) {
+    res *= n;
+  }
+  return res;
+}
+
 /** demos **/
 
 predefinedCombinators() {
@@ -106,7 +117,7 @@ listsOfBools() {
   });
 
   // we can access the nth list of the enumeration very fast, even for big ns
-  print("member 10^10 of the enumeration: ${listEnum[Math.pow(10,10)]}");
+  print("member 10^200 of the enumeration: ${listEnum[pow(10,200)]}");
 }
 
 treesOfNaturals() {
