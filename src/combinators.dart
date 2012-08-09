@@ -47,7 +47,7 @@ class _Cons extends _LList {
 _nil() => new _Nil();
 _cons(x) => (xs) => new _Cons(x,xs);
 
-List _foldLeft(list, zero, plus) {
+_foldLeft(list, zero, plus) {
   var result = zero;
   for (final x in list) {
     result = plus(result, x);
