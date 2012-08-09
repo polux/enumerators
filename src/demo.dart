@@ -105,7 +105,7 @@ listsOfBools() {
   });
 
   // we can access big parts pretty fast
-  final trues = listEnum.parts[181][0];
+  final trues = listEnum.parts[81][0];
   print("the first list made of 40 elements (81 constructors): $trues");
 
   // toLazyList() iterates over the enumeration as a whole, seen as a
@@ -117,7 +117,7 @@ listsOfBools() {
   });
 
   // we can access the nth list of the enumeration very fast, even for big ns
-  print("member 10^200 of the enumeration: ${listEnum[pow(10,300)]}");
+  print("member 10^200 of the enumeration: ${listEnum[pow(10,200)]}");
 }
 
 treesOfNaturals() {

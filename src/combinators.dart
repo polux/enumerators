@@ -64,9 +64,15 @@ Map _toMap(List<Pair> assocs) {
 }
 
 class Combinators {
+  var _bools;
   var _strings;
   var _nats;
   var _ints;
+
+  Enumeration<bool> get bools() {
+    if (_bools === null) { _bools = _mkBools(); }
+    return _bools;
+  }
 
   Enumeration<String> get strings() {
     if (_strings === null) { _strings = _mkStrings(); }
@@ -117,6 +123,10 @@ class Combinators {
     }
     return listsOf(nats * values).map(bij);
 
+  }
+
+  Enumeration<bool> _mkBools() {
+    return singleton(true) + singleton(false);
   }
 
   Enumeration<int> _mkNats() {
