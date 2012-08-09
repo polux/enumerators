@@ -25,8 +25,60 @@ class Pair<A,B> {
   toString() => "($fst, $snd)";
 }
 
-Function compose(Function f1, Function f2) =>
-    (x) => f1(f2(x));
+class _Trampoline<A> {
+  A run() {
+    // null means "make pair", a closure means "map"
+    var instructions = [this];
+    var stack = [];
+    while (instructions.length > 0) {
+      final i = instructions.removeLast();
+      if (i is _Done) {
+        stack.addLast(i.value);
+      } else if (i is _Bounce) {
+        instructions.addLast(i.next());
+      } else if (i is _Prod) {
+        instructions.addLast(null);
+        instructions.addLast(i.tr1);
+        instructions.addLast(i.tr2);
+      } else if (i is _Map) {
+        instructions.addLast(i.f);
+        instructions.addLast(i.tr);
+      } else if (i === null) {
+        final v1 = stack.removeLast();
+        final v2 = stack.removeLast();
+        stack.addLast(new Pair(v1, v2));
+      } else {
+        final v = stack.removeLast();
+        stack.addLast(i(v));
+      }
+    }
+    return stack[0];
+  }
+  _Trampoline map(f(A x)) => new _Map(f, this);
+  _Trampoline<Pair> operator *(_Trampoline other) => new _Prod(this, other);
+}
+
+class _Done<A> extends _Trampoline<A> {
+  final A value;
+  _Done(this.value);
+}
+
+class _Bounce<A> extends _Trampoline<A> {
+  final Function next;
+  _Bounce(_Trampoline<A> next()) : this.next = next;
+}
+
+class _Map extends _Trampoline {
+  final Function f;
+  final _Trampoline tr;
+  _Map(this.f, this.tr);
+}
+
+class _Prod extends _Trampoline<Pair> {
+  final tr1;
+  final tr2;
+  _Prod(this.tr1, this.tr2);
+}
 
 /**
  * A finite set.
@@ -40,7 +92,7 @@ class Finite<A> {
    factory Finite.empty() => new Finite(0, (i) { throw "index out of range"; });
 
    factory Finite.singleton(A x) => new Finite(1, (i) {
-     if (i == 0) return x;
+     if (i == 0) return new _Done(x);
      else throw "index out of range";
    });
 
@@ -59,7 +111,7 @@ class Finite<A> {
      return aux(0);
    }
 
-   A operator [](int index) => indexer(index);
+   A operator [](int index) => indexer(index).run();
 
    /**
     * Union.
@@ -67,7 +119,9 @@ class Finite<A> {
    Finite<A> operator +(Finite<A> fin) =>
        new Finite<A>(
            this.card + fin.card,
-           (int i) => i < this.card ? this[i] : fin[i - this.card]);
+           (int i) => i < this.card
+               ? new _Bounce(() => indexer(i))
+               : new _Bounce(() => fin.indexer(i - this.card)));
 
    /**
     * Cartesian product.
@@ -78,13 +132,13 @@ class Finite<A> {
            (int i) {
              int q = i ~/ fin.card;
              int r = i % fin.card;
-             return new Pair(this[q], fin[r]);
+             return this.indexer(q) * fin.indexer(r);
            });
 
    /**
     * [Finite] is a functor.
     */
-   Finite map(f(A x)) => this.setIndexer(compose(f, indexer));
+   Finite map(f(A x)) => this.setIndexer((i) => indexer(i).map(f));
 
    /**
     * [Finite] is an applicative functor.
@@ -306,14 +360,11 @@ class Enumeration<A> {
           final cardsProducts = xsCards.zipWith((c1, c2) => c1 * c2, ysCards);
           final newCard = cardsProducts.foldLeft(0, (c1, c2) => c1 + c2);
 
-          newIndexer(i) {
-            final unionOfProducts =
-                xs.zipWith((f1, f2) => f1 * f2, ys)
-                  .foldLeft(new Finite.empty(), (f1, f2) => f1 + f2);
-            return unionOfProducts[i];
-          }
+          final unionOfProducts =
+              xs.zipWith((f1, f2) => f1 * f2, ys)
+                .foldLeft(new Finite.empty(), (f1, f2) => f1 + f2);
 
-          return new Finite(newCard, newIndexer);
+          return new Finite(newCard, unionOfProducts.indexer);
       };
 
   /**
