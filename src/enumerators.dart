@@ -234,13 +234,16 @@ class Enumeration<A> {
     return result;
   }
 
-  _index(LazyList<Finite<A>> ps, int i) {
-    if (ps.isEmpty()) throw "index out of range";
-    if (i < ps.head.card) return ps.head[i];
-    return _index(ps.tail, i - ps.head.card);
+  A operator [](int i) {
+    var ps = parts;
+    var it = i;
+    while (true) {
+      if (ps.isEmpty()) throw "index out of range";
+      if (it < ps.head.card) return ps.head[it];
+      it = it - ps.head.card;
+      ps = ps.tail;
+    }
   }
-
-  A operator [](int i) => _index(parts, i);
 
   LazyList<A> toLazyList() =>
       parts.map((f) => f.toLazyList()).concat();

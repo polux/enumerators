@@ -117,7 +117,7 @@ listsOfBools() {
   });
 
   // we can access the nth list of the enumeration very fast, even for big ns
-  print("member 10^200 of the enumeration: ${listEnum[pow(10,200)]}");
+  print("member 10^200 of the enumeration: ${listEnum[pow(10,300)]}");
 }
 
 treesOfNaturals() {
