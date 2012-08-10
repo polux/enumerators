@@ -25,125 +25,140 @@ class Pair<A,B> {
   toString() => "($fst, $snd)";
 }
 
-class _Trampoline<A> {
-  A run() {
-    // null means "make pair", a closure means "map"
-    var instructions = [this];
+class _Instruction {}
+class _IProd extends _Instruction {}
+class _IMap extends _Instruction {
+  final Function f;
+  _IMap(this.f);
+}
+class _IEval extends _Instruction {
+  final Finite fin;
+  final int i;
+  _IEval(this.fin, this.i);
+  toString() => "eval($fin, $i)";
+}
+
+abstract class Finite<A> {
+  abstract get card();
+
+  Finite();
+  factory Finite.empty() => new _FEmpty();
+  factory Finite.singleton(A x) => new _FSingleton(x);
+
+  /**
+   * Union.
+   */
+  Finite<A> operator +(Finite<A> fin) => new _FSum(this, fin);
+
+  /**
+   * Cartesian product.
+   */
+  Finite<Pair> operator *(Finite fin) => new _FProd(this, fin);
+
+  /**
+   * [Finite] is a functor.
+   */
+  Finite map(f(A x)) => new _FMap(f, this);
+
+  /**
+   * [Finite] is an applicative functor.
+   */
+  Finite apply(Finite fin) => (this * fin).map((pair) => pair.fst(pair.snd));
+
+  A operator [](int index) => _eval(this, index);
+
+  static _eval(Finite finite, int index) {
+    var instructions = <_Instruction>[new _IEval(finite, index)];
     var stack = [];
     while (instructions.length > 0) {
-      final i = instructions.removeLast();
-      if (i is _Done) {
-        stack.addLast(i.value);
-      } else if (i is _Bounce) {
-        instructions.addLast(i.next());
-      } else if (i is _Prod) {
-        instructions.addLast(null);
-        instructions.addLast(i.tr1);
-        instructions.addLast(i.tr2);
-      } else if (i is _Map) {
-        instructions.addLast(i.f);
-        instructions.addLast(i.tr);
-      } else if (i === null) {
+      _Instruction instr = instructions.removeLast();
+      if (instr is _IEval) {
+        final i = instr.i;
+        final fin = instr.fin;
+        if (fin is _FEmpty) {
+          throw "index out of range";
+        } else if (fin is _FSingleton) {
+          if (i == 0)
+            stack.addLast(fin.value);
+          else
+            throw "index out of range";
+        } else if (fin is _FSum) {
+          if (i < fin.fin1.card)
+            instructions.addLast(new _IEval(fin.fin1, i));
+          else
+            instructions.addLast(new _IEval(fin.fin2, i - fin.fin1.card));
+        } else if (fin is _FProd) {
+          instructions.addLast(new _IProd());
+          instructions.addLast(new _IEval(fin.fin1, i ~/ fin.fin2.card));
+          instructions.addLast(new _IEval(fin.fin2, i % fin.fin2.card));
+        } else if (fin is _FMap) {
+          instructions.addLast(new _IMap(fin.f));
+          instructions.addLast(new _IEval(fin.mapped, i));
+        }
+      } else if (instr is _IProd) {
         final v1 = stack.removeLast();
         final v2 = stack.removeLast();
         stack.addLast(new Pair(v1, v2));
-      } else {
+      } else if (instr is _IMap) {
         final v = stack.removeLast();
-        stack.addLast(i(v));
+        stack.addLast(instr.f(v));
       }
     }
     return stack[0];
   }
-  _Trampoline map(f(A x)) => new _Map(f, this);
-  _Trampoline<Pair> operator *(_Trampoline other) => new _Prod(this, other);
+
+  String toString() {
+    final strings = toLazyList().map((f) => f.toString()).toList();
+    return "{${Strings.join(strings, ", ")}}";
+  }
+
+  LazyList<A> toLazyList() {
+    aux(i) => (i == this.card)
+        ? new LazyList.empty()
+        : new LazyList(() => new Pair(this[i], aux(i+1)));
+    return aux(0);
+  }
 }
 
-class _Done<A> extends _Trampoline<A> {
+class _FEmpty<A> extends Finite<A> {
+  final int card = 0;
+  _FEmpty();
+}
+
+class _FSingleton<A> extends Finite<A> {
+  final int card = 1;
   final A value;
-  _Done(this.value);
+  _FSingleton(this.value);
 }
 
-class _Bounce<A> extends _Trampoline<A> {
-  final Function next;
-  _Bounce(_Trampoline<A> next()) : this.next = next;
+class _FSum<A> extends Finite<A> {
+  final int card;
+  final Finite<A> fin1;
+  final Finite<A> fin2;
+  _FSum(fin1, fin2)
+      : this.fin1 = fin1
+      , this.fin2 = fin2
+      , card = fin1.card + fin2.card;
 }
 
-class _Map extends _Trampoline {
+class _FProd<A> extends Finite<A> {
+  final int card;
+  final Finite<A> fin1;
+  final Finite<A> fin2;
+  _FProd(fin1, fin2)
+      : this.fin1 = fin1
+      , this.fin2 = fin2
+      , card = fin1.card * fin2.card;
+}
+
+class _FMap<A,B> extends Finite<B> {
+  final int card;
   final Function f;
-  final _Trampoline tr;
-  _Map(this.f, this.tr);
-}
-
-class _Prod extends _Trampoline<Pair> {
-  final tr1;
-  final tr2;
-  _Prod(this.tr1, this.tr2);
-}
-
-/**
- * A finite set.
- */
-class Finite<A> {
-   final int card;
-   final Function indexer;
-
-   Finite(this.card, this.indexer);
-
-   factory Finite.empty() => new Finite(0, (i) { throw "index out of range"; });
-
-   factory Finite.singleton(A x) => new Finite(1, (i) {
-     if (i == 0) return new _Done(x);
-     else throw "index out of range";
-   });
-
-   Finite<A> setCard(int newCard) => new Finite<A>(newCard, indexer);
-   Finite<A> setIndexer(Function newIndexer) => new Finite<A>(card, newIndexer);
-
-   String toString() {
-     final strings = toLazyList().map((f) => f.toString()).toList();
-     return "{${Strings.join(strings, ", ")}}";
-   }
-
-   LazyList<A> toLazyList() {
-     aux(i) => (i == this.card)
-         ? new LazyList.empty()
-         : new LazyList(() => new Pair(this[i], aux(i+1)));
-     return aux(0);
-   }
-
-   A operator [](int index) => indexer(index).run();
-
-   /**
-    * Union.
-    */
-   Finite<A> operator +(Finite<A> fin) =>
-       new Finite<A>(
-           this.card + fin.card,
-           (int i) => i < this.card
-               ? new _Bounce(() => indexer(i))
-               : new _Bounce(() => fin.indexer(i - this.card)));
-
-   /**
-    * Cartesian product.
-    */
-   Finite<Pair> operator *(Finite fin) =>
-       new Finite<Pair>(
-           this.card * fin.card,
-           (int i) {
-             int q = i ~/ fin.card;
-             int r = i % fin.card;
-             return this.indexer(q) * fin.indexer(r);
-           });
-
-   /**
-    * [Finite] is a functor.
-    */
-   Finite map(f(A x)) => this.setIndexer((i) => indexer(i).map(f));
-
-   /**
-    * [Finite] is an applicative functor.
-    */
-   Finite apply(Finite fin) => (this * fin).map((pair) => pair.fst(pair.snd));
+  final Finite<A> mapped;
+  _FMap(B f(A x), Finite<A> mapped)
+      : this.f = f
+      , this.mapped = mapped
+      , card = mapped.card;
 }
 
 /**
@@ -352,20 +367,9 @@ class Enumeration<A> {
   }
 
   static _conv(LazyList<Finite> xs) =>
-      (LazyList<Finite> ys) {
-          // a much simpler def would be "union (zipWith (*) xs ys)"
-          // but according to the paper this introduces memory leaks
-          final xsCards = xs.map((f) => f.card);
-          final ysCards = ys.map((f) => f.card);
-          final cardsProducts = xsCards.zipWith((c1, c2) => c1 * c2, ysCards);
-          final newCard = cardsProducts.foldLeft(0, (c1, c2) => c1 + c2);
-
-          final unionOfProducts =
-              xs.zipWith((f1, f2) => f1 * f2, ys)
-                .foldLeft(new Finite.empty(), (f1, f2) => f1 + f2);
-
-          return new Finite(newCard, unionOfProducts.indexer);
-      };
+      (LazyList<Finite> ys) =>
+          xs.zipWith((f1, f2) => f1 * f2, ys)
+            .foldLeft(new Finite.empty(), (f1, f2) => f1 + f2);
 
   /**
    * Cartesian product.

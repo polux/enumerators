@@ -149,7 +149,7 @@ treesOfNaturals() {
   print("a deep tree: ${treeEnum.parts[50][cardOf50 - 1]}");
 
   // again, finding the nth member of the enumeration is fast, even for big ns
-  print("a random tree: ${treeEnum[Math.pow(10,10)]}");
+  print("a random tree: ${treeEnum[pow(10,10)]}");
 }
 
 main() {
