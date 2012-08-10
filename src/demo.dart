@@ -145,11 +145,11 @@ treesOfNaturals() {
   final cardOf50 = treeEnum.parts[50].card;
   print("there are $cardOf50 trees of size 50");
   // the first tree of the 50th set is Leaf(48), which is boring, but at the
-  // end of the set, we can get a pretty big one
-  print("a deep tree: ${treeEnum.parts[50][cardOf50 - 1]}");
+  // middle of the set, we can get a pretty deep one
+  print("a deep tree: ${treeEnum.parts[50][cardOf50 ~/ 2]}");
 
   // again, finding the nth member of the enumeration is fast, even for big ns
-  print("a random tree: ${treeEnum[pow(10,10)]}");
+  print("a random tree: ${treeEnum[pow(10,100)]}");
 }
 
 main() {
