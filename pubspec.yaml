@@ -1,3 +1,5 @@
 name: dart-enumerators
-description: a small DSL for writing enumerators of Dart datatypes, inspired by http://hackage.haskell.org/package/testing-feat
+description: >
+  A small DSL for writing enumerators of Dart datatypes,
+  inspired by http://hackage.haskell.org/package/testing-feat.
 version: 0.0.1
