@@ -136,7 +136,8 @@ class Combinators {
   }
 
   Enumeration<int> _mkInts() {
-    return nats + nats.map((n) => -n);
+    final natsPlusOne = nats.map((n) => n + 1);
+    return singleton(0) + (natsPlusOne + natsPlusOne.map((n) => -n));
   }
 
   Enumeration<String> _mkStrings() {
