@@ -15,7 +15,8 @@
 // Author: Paul Brauner (polux@google.com)
 
 #library('combinators');
-#import('enumerators.dart');
+
+#import('package:dart_enumerators/enumerators.dart');
 
 class _LList {
   abstract bool isEmpty();
