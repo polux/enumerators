@@ -16,8 +16,8 @@
 
 #library('advanced');
 
-#import('package:dart_enumerators/enumerators.dart');
-#import('package:dart_enumerators/combinators.dart');
+#import('package:dart-enumerators/enumerators.dart');
+#import('package:dart-enumerators/combinators.dart');
 
 /** datatypes **/
 

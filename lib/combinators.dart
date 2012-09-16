@@ -16,7 +16,7 @@
 
 #library('combinators');
 
-#import('package:dart_enumerators/enumerators.dart');
+#import('package:dart-enumerators/enumerators.dart');
 
 class _LList {
   abstract bool isEmpty();
