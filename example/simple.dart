@@ -16,7 +16,6 @@
 
 #library('simple');
 
-#import('package:dart-enumerators/enumerators.dart');
 #import('package:dart-enumerators/combinators.dart');
 
 main() {
