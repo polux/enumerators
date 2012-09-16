@@ -18,6 +18,51 @@
 
 #import('package:dart-enumerators/enumerators.dart');
 
+/* public API */
+
+final Enumeration<bool> bools = _mkBools();
+final Enumeration<String> strings = _mkStrings();
+final Enumeration<int> nats = _mkNats();
+final Enumeration<int> ints = _mkInts();
+
+Enumeration<List> listsOf(Enumeration enum) {
+  final nils = singleton(_nil());
+  consesOf(e) => singleton(_cons).apply(enum).apply(e);
+  final llists = fix((e) => (nils + consesOf(e).pay()));
+  return llists.map((ll) => ll.toList());
+}
+
+Enumeration<Set> setsOf(Enumeration enum) {
+  // bijection from lists of nats to sets of values
+  bij(list) {
+    var res = new Set();
+    int sum = -1;
+    for (final x in list) {
+      sum += 1 + x;
+      res.add(enum[sum]);
+    }
+    return res;
+  }
+  return listsOf(nats).map(bij);
+}
+
+Enumeration<Map> mapsOf(Enumeration keys, Enumeration values) {
+  // bijection from lists of (nat x value) to maps of (key x value)
+  bij(assocs) {
+    var res = new Map();
+    int sum = -1;
+    for (final assoc in assocs) {
+      sum += 1 + assoc.fst;
+      res[keys[sum]] = assoc.snd;
+    }
+    return res;
+  }
+  return listsOf(nats * values).map(bij);
+
+}
+
+/* implementation */
+
 class _LList {
   abstract bool isEmpty();
 
@@ -64,87 +109,24 @@ Map _toMap(List<Pair> assocs) {
   return res;
 }
 
-class Combinators {
-  var _bools;
-  var _strings;
-  var _nats;
-  var _ints;
+Enumeration<bool> _mkBools() {
+  return singleton(true) + singleton(false);
+}
 
-  Enumeration<bool> get bools() {
-    if (_bools === null) { _bools = _mkBools(); }
-    return _bools;
-  }
+Enumeration<int> _mkNats() {
+  final zeros = singleton(0);
+  succOf(e) => e.map((n) => n + 1);
+  return fix((e) => (zeros + succOf(e)).pay());
+}
 
-  Enumeration<String> get strings() {
-    if (_strings === null) { _strings = _mkStrings(); }
-    return _strings;
-  }
+Enumeration<int> _mkInts() {
+  final natsPlusOne = nats.map((n) => n + 1);
+  return singleton(0) + (natsPlusOne + natsPlusOne.map((n) => -n));
+}
 
-  Enumeration<int> get nats() {
-    if (_nats === null) { _nats = _mkNats(); }
-    return _nats;
-  }
-
-  Enumeration<int> get ints() {
-    if (_ints === null) { _ints = _mkInts(); }
-    return _ints;
-  }
-
-  Enumeration<List> listsOf(Enumeration enum) {
-   final nils = singleton(_nil());
-   consesOf(e) => singleton(_cons).apply(enum).apply(e);
-   final llists = fix((e) => (nils + consesOf(e).pay()));
-   return llists.map((ll) => ll.toList());
-  }
-
-  Enumeration<Set> setsOf(Enumeration enum) {
-    // bijection from lists of nats to sets of values
-    bij(list) {
-      var res = new Set();
-      int sum = -1;
-      for (final x in list) {
-        sum += 1 + x;
-        res.add(enum[sum]);
-      }
-      return res;
-    }
-    return listsOf(nats).map(bij);
-  }
-
-  Enumeration<Map> mapsOf(Enumeration keys, Enumeration values) {
-    // bijection from lists of (nat x value) to maps of (key x value)
-    bij(assocs) {
-      var res = new Map();
-      int sum = -1;
-      for (final assoc in assocs) {
-        sum += 1 + assoc.fst;
-        res[keys[sum]] = assoc.snd;
-      }
-      return res;
-    }
-    return listsOf(nats * values).map(bij);
-
-  }
-
-  Enumeration<bool> _mkBools() {
-    return singleton(true) + singleton(false);
-  }
-
-  Enumeration<int> _mkNats() {
-    final zeros = singleton(0);
-    succOf(e) => e.map((n) => n + 1);
-    return fix((e) => (zeros + succOf(e)).pay());
-  }
-
-  Enumeration<int> _mkInts() {
-    final natsPlusOne = nats.map((n) => n + 1);
-    return singleton(0) + (natsPlusOne + natsPlusOne.map((n) => -n));
-  }
-
-  Enumeration<String> _mkStrings() {
-   final cs = "abcdefghijklmnopqrstuvwxyz".splitChars();
-   final chars = _foldLeft(cs.map(singleton), empty(), (e1, e2) => e1 + e2);
-   final charsLists = listsOf(chars);
-   return charsLists.map(Strings.concatAll);
-  }
+Enumeration<String> _mkStrings() {
+  final cs = "abcdefghijklmnopqrstuvwxyz".splitChars();
+  final chars = _foldLeft(cs.map(singleton), empty(), (e1, e2) => e1 + e2);
+  final charsLists = listsOf(chars);
+  return charsLists.map(Strings.concatAll);
 }

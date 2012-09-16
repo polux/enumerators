@@ -15,23 +15,18 @@
 // Author: Paul Brauner (polux@google.com)
 
 #library('simple');
-
-#import('package:dart-enumerators/combinators.dart');
+#import('package:dart-enumerators/combinators.dart', prefix: 'c');
 
 main() {
-  // ideally, Combinators is a module but the VM doesn't support lazy
-  // initialization of toplevel variables yet
-  final c = new Combinators();
-
   // c.strings is an enumeration: a infinite list of finite parts
   // part 0 contains the strings of size 0, part 1 the strings of size 1, etc.
-  final strings = c.strings.parts[20];
+  final strings20 = c.strings.parts[20];
 
   // we have fast access to the cardinal of a part
-  final n = (strings.card * 0.123).toInt();
+  final n = (strings20.card * 0.123).toInt();
 
   // as well as fast access to the nth element of a part
-  print("the ${n}th string of size 20: ${strings[n]}");
+  print("the ${n}th string of size 20: ${strings20[n]}");
 
   // we quickly access the nth element of an enumeration seen as the
   // concatenation of its parts
