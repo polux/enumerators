@@ -39,7 +39,7 @@ class _IEval extends _Instruction {
 }
 
 abstract class Finite<A> {
-  abstract get card();
+  abstract get card;
 
   Finite();
   factory Finite.empty() => new _FEmpty();
@@ -185,12 +185,12 @@ class LazyList<A> {
     _cachedTail = pair.snd;
   }
 
-  get head() {
+  get head {
     if (_cachedHead == null) _force();
     return _cachedHead;
   }
 
-  get tail() {
+  get tail {
     if (_cachedTail == null) _force();
     return _cachedTail;
   }
