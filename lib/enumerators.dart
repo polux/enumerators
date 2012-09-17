@@ -63,7 +63,8 @@ abstract class Finite<A> {
   /**
    * [Finite] is an applicative functor.
    */
-  Finite apply(Finite fin) => (this * fin).map((pair) => pair.fst(pair.snd));
+  Finite apply(Finite fin) =>
+      (this * fin).map((pair) => (pair.fst as Function)(pair.snd));
 
   A operator [](int index) => _eval(this, index);
 
@@ -383,7 +384,7 @@ class Enumeration<A> {
   * [Enumeration] is an applicative functor.
   */
   Enumeration apply(Enumeration e) =>
-      (this * e).map((pair) => pair.fst(pair.snd));
+      (this * e).map((pair) => (pair.fst as Function)(pair.snd));
 
   /**
    * Pays for one recursive call.
