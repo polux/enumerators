@@ -14,9 +14,9 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-#library('advanced');
+library advanced;
 
-#import('package:dart_enumerators/enumerators.dart');
+import 'package:dart_enumerators/enumerators.dart';
 
 /** datatypes **/
 

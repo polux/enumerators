@@ -14,7 +14,7 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-#library('enumerators');
+library enumerators;
 
 class Pair<A,B> {
   final A fst;
@@ -177,7 +177,7 @@ class LazyList<A> {
   factory LazyList.repeat(A x) =>
       new LazyList(() => new Pair(x, new LazyList.repeat(x)));
 
-  bool isEmpty() => gen === null;
+  bool isEmpty() => gen == null;
 
   void _force() {
     final pair = gen();
