@@ -63,7 +63,7 @@ Enumeration<Map> mapsOf(Enumeration keys, Enumeration values) {
 
 /* implementation */
 
-class _LList {
+abstract class _LList {
   abstract bool isEmpty();
 
   List toList() {

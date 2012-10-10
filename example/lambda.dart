@@ -1,4 +1,4 @@
-#import('package:dart_enumerators/enumerators.dart', prefix: 'e');
+import 'package:dart_enumerators/enumerators.dart' as e;
 
 e.Finite singleton(x) => new e.Finite.singleton(x);
 e.Finite empty() => new e.Finite.empty();
