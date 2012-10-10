@@ -1,0 +1,153 @@
+        <!DOCTYPE html>
+        <html manifest="/appcache.manifest">
+        <head>
+                <meta charset="utf-8">
+        <title>combinators Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="styles.css">
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="favicon.ico">
+        
+        </head>
+        <body data-library="combinators">
+        <div class="page">
+        <div class="header">
+          <a href="index.html"><div class="logo"></div></a>
+          <a href="index.html">Dart Documentation</a>
+         &rsaquo; <a href="combinators.html">combinators</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+<h2><strong>combinators</strong> library</h2>
+<div>
+<h3>Variables</h3>
+<div class="field"><h4 id="bools">
+<button class="show-code">Code</button>
+final <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt;         <strong>bools</strong> <a class="anchor-link"
+            href="#bools"
+            title="Permalink to bools">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Enumeration&lt;bool&gt; bools = _mkBools();
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="ints">
+<button class="show-code">Code</button>
+final <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt;         <strong>ints</strong> <a class="anchor-link"
+            href="#ints"
+            title="Permalink to ints">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Enumeration&lt;int&gt; ints = _mkInts();
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="nats">
+<button class="show-code">Code</button>
+final <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt;         <strong>nats</strong> <a class="anchor-link"
+            href="#nats"
+            title="Permalink to nats">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Enumeration&lt;int&gt; nats = _mkNats();
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="strings">
+<button class="show-code">Code</button>
+final <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt;         <strong>strings</strong> <a class="anchor-link"
+            href="#strings"
+            title="Permalink to strings">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Enumeration&lt;String&gt; strings = _mkStrings();
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Functions</h3>
+<div class="method"><h4 id="listsOf">
+<button class="show-code">Code</button>
+<a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/List.html">List</a>&gt; <strong>listsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> enum) <a class="anchor-link" href="#listsOf"
+              title="Permalink to listsOf">#</a></h4>
+<div class="doc">
+<pre class="source">
+Enumeration&lt;List&gt; listsOf(Enumeration enum) {
+  final nils = singleton(_nil());
+  consesOf(e) =&gt; singleton(_cons).apply(enum).apply(e);
+  final llists = fix((e) =&gt; (nils + consesOf(e).pay()));
+  return llists.map((ll) =&gt; ll.toList());
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="mapsOf">
+<button class="show-code">Code</button>
+<a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/Map.html">Map</a>&gt; <strong>mapsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> keys, <a href="enumerators/Enumeration.html">Enumeration</a> values) <a class="anchor-link" href="#mapsOf"
+              title="Permalink to mapsOf">#</a></h4>
+<div class="doc">
+<pre class="source">
+Enumeration&lt;Map&gt; mapsOf(Enumeration keys, Enumeration values) {
+  // bijection from lists of (nat x value) to maps of (key x value)
+  bij(assocs) {
+    var res = new Map();
+    int sum = -1;
+    for (final assoc in assocs) {
+      sum += 1 + assoc.fst;
+      res[keys[sum]] = assoc.snd;
+    }
+    return res;
+  }
+  return listsOf(nats * values).map(bij);
+
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="setsOf">
+<button class="show-code">Code</button>
+<a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/Set.html">Set</a>&gt; <strong>setsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> enum) <a class="anchor-link" href="#setsOf"
+              title="Permalink to setsOf">#</a></h4>
+<div class="doc">
+<pre class="source">
+Enumeration&lt;Set&gt; setsOf(Enumeration enum) {
+  // bijection from lists of nats to sets of values
+  bij(list) {
+    var res = new Set();
+    int sum = -1;
+    for (final x in list) {
+      sum += 1 + x;
+      res.add(enum[sum]);
+    }
+    return res;
+  }
+  return listsOf(nats).map(bij);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        
+        <div class="footer">
+          <div>This page was generated at 2012-10-10 21:23:41.226</div>
+        </div>
+        <script async src="client-live-nav.js"></script>
+        </body></html>
+        
