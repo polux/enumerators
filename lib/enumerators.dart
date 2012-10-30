@@ -77,12 +77,12 @@ abstract class Finite<A> {
         final i = instr.i;
         final fin = instr.fin;
         if (fin is _FEmpty) {
-          throw "index out of range";
+          throw new IndexOutOfRangeException(index);
         } else if (fin is _FSingleton) {
           if (i == 0)
             stack.addLast(fin.value);
           else
-            throw "index out of range";
+            throw new IndexOutOfRangeException(index);
         } else if (fin is _FSum) {
           if (i < fin.fin1.card)
             instructions.addLast(new _IEval(fin.fin1, i));
@@ -268,7 +268,7 @@ class LazyList<A> {
    */
   A operator[](int index) {
     getAt(LazyList l, int i) {
-      if (l.isEmpty()) throw "index out of range";
+      if (l.isEmpty()) throw new IndexOutOfRangeException(index);
       if (i == 0) return l.head;
       return getAt(l.tail, i - 1);
     }
@@ -308,7 +308,7 @@ class Enumeration<A> {
     var ps = parts;
     var it = i;
     while (true) {
-      if (ps.isEmpty()) throw "index out of range";
+      if (ps.isEmpty()) throw new IndexOutOfRangeException(i);
       if (it < ps.head.card) return ps.head[it];
       it = it - ps.head.card;
       ps = ps.tail;
