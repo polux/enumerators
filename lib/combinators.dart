@@ -116,12 +116,12 @@ Enumeration<bool> _mkBools() {
 Enumeration<int> _mkNats() {
   final zeros = singleton(0);
   succOf(e) => e.map((n) => n + 1);
-  return fix((e) => (zeros + succOf(e)).pay());
+  return fix((e) => zeros + succOf(e).pay());
 }
 
 Enumeration<int> _mkInts() {
   final natsPlusOne = nats.map((n) => n + 1);
-  return singleton(0) + (natsPlusOne + natsPlusOne.map((n) => -n));
+  return singleton(0) + (natsPlusOne + natsPlusOne.map((n) => -n)).pay();
 }
 
 Enumeration<String> _mkStrings() {
