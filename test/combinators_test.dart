@@ -56,6 +56,27 @@ void testInts() {
   checkPrefix(c.ints, expected);
 }
 
+void testStrings() {
+  final chars = "abcdefghijklmnopqrstuvwxyz".splitChars();
+  final expected1 = chars;
+  final expected2 = [];
+  for (final c1 in chars) {
+    for (final c2 in chars) {
+      expected2.add("$c1$c2");
+    }
+  }
+  final expected3 = [];
+  for (final c1 in chars) {
+    for (final c2 in chars) {
+      for (final c3 in chars) {
+        expected3.add("$c1$c2$c3");
+      }
+    }
+  }
+  final expected = [[''], expected1, expected2, expected3];
+  checkPrefix(c.strings, expected);
+}
+
 void testListsOfBools() {
   final enum = c.listsOf(c.bools);
   final t = true, f = false;
@@ -80,11 +101,12 @@ void testListsOfNats() {
   checkPrefix(enum, expected);
 }
 
-
 main() {
-  test('bools is { 0: [true, false], 1: [], 2: [], ... }', testBools);
+  test('bools is { 0: [true, false] }', testBools);
   test('nats is { 0: [], 1: [0], 2: [1], ... }', testNats);
   test('ints is { 0: [0], 1: [1, -1], 2: [2, -2], ... }', testInts);
+  test('strings is { 0: [""], 1: ["a".."z"], 2: ["aa", "ab", ...], ... }',
+       testStrings);
   test('listsOf(bools) is { 0: [[]], 1: [[true], [false]], .. }',
        testListsOfBools);
   test('listsOf(nats) is { 0: [[0]], 1: [[0, 0], [1]], .. }',
