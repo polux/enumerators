@@ -22,7 +22,7 @@ void checkNats() {
     expect(c.nats.parts[n].card, equals(1),
            reason: "part $n hasn't the expected cardinal");
     expect(c.nats.parts[n][0], equals(n),
-           "c.nats.parts[$n][0] isn't ${n}");
+           reason: "c.nats.parts[$n][0] isn't ${n}");
   }
 }
 
@@ -33,9 +33,9 @@ void checkInts() {
     expect(c.ints.parts[n].card, equals(2),
            reason: "part $n hasn't the expected cardinal");
     expect(c.ints.parts[n][0], equals(n),
-           "c.ints.parts[$n][0] isn't ${n - 1}");
+           reason: "c.ints.parts[$n][0] isn't ${n - 1}");
     expect(c.ints.parts[n][1], equals(-n),
-           "c.ints.parts[$n][1] isn't ${1 - n}");
+           reason: "c.ints.parts[$n][1] isn't ${1 - n}");
   }
 }
 
