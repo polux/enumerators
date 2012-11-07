@@ -76,7 +76,7 @@ void testCardinalOfApply() {
 void testIndexEmpty() {
   final empty = new Finite.empty();
   for (int i = 0; i < 100; i++) {
-    expect(() => empty[i], throwsIndexOutOfRangeException);
+    expectThrow(() => empty[i], (e) => e is RangeError);
   }
 }
 
@@ -84,7 +84,7 @@ void testIndexSingleton() {
   final foo = new Finite.singleton('foo');
   expect(foo[0], equals('foo'));
   for (int i = 1; i < 100; i++) {
-    expect(() => foo[i], throwsIndexOutOfRangeException);
+    expectThrow(() => foo[i], (e) => e is RangeError);
   }
 }
 
@@ -101,7 +101,7 @@ void testIndexSum() {
     expect(sum[1], equals('bar'));
     expect(sum[2], equals('baz'));
     for (int i = 3; i < 100; i++) {
-      expect(() => sum[i], throwsIndexOutOfRangeException);
+      expectThrow(() => sum[i], (e) => e is RangeError);
     }
   }
 }
@@ -121,7 +121,7 @@ void testIndexProd() {
   expect(prod[3].fst, equals('bar'));
   expect(prod[3].snd, equals('bar'));
   for (int i = 4; i < 100; i++) {
-    expect(() => prod[i], throwsIndexOutOfRangeException);
+    expectThrow(() => prod[i], (e) => e is RangeError);
   }
 }
 
@@ -134,7 +134,7 @@ void testIndexMap() {
   expect(finDoubled[1], equals(4));
   expect(finDoubled[2], equals(6));
   for (int i = 3; i < 100; i++) {
-    expect(() => finDoubled[i], throwsIndexOutOfRangeException);
+    expectThrow(() => finDoubled[i], (e) => e is RangeError);
   }
 }
 
@@ -149,7 +149,7 @@ void testIndexApply() {
   expect(applied[2], equals(3));
   expect(applied[3], equals(6));
   for (int i = 4; i < 100; i++) {
-    expect(() => applied[i], throwsIndexOutOfRangeException);
+    expectThrow(() => applied[i], (e) => e is RangeError);
   }
 }
 

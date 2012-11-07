@@ -4,9 +4,9 @@ e.Finite singleton(x) => new e.Finite.singleton(x);
 e.Finite empty() => new e.Finite.empty();
 
 abstract class Term {
-  abstract String pretty(int n);
+  String pretty(int n);
   String toString() => pretty(0);
-  abstract e.Finite<Term> expand(int n);
+  e.Finite<Term> expand(int n);
 }
 
 class Lam extends Term {

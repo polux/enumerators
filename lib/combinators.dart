@@ -64,7 +64,7 @@ Enumeration<Map> mapsOf(Enumeration keys, Enumeration values) {
 /* implementation */
 
 abstract class _LList {
-  abstract bool isEmpty();
+  bool isEmpty();
 
   List toList() {
     var res = [];
