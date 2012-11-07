@@ -17,27 +17,10 @@
 import 'package:dart_enumerators/enumerators.dart' show Enumeration;
 import 'package:dart_enumerators/combinators.dart' as c;
 import 'package:unittest/unittest.dart';
-
-void checkPrefix(Enumeration enum, List<List> prefix) {
-  for (int i = 0; i < prefix.length; i++) {
-    final finite = prefix[i];
-    final part = enum.parts[i];
-    expect(part.card, equals(finite.length));
-    for (int j = 0; j < finite.length; j++) {
-      expect(part[j], equals(finite[j]));
-    }
-  }
-}
-
-void checkUndefined(Enumeration enum, int from, int to) {
-  for (int i = from; i < to; i++) {
-    expect(() => enum.parts[i], throwsIndexOutOfRangeException);
-  }
-}
+import 'src/common.dart';
 
 void testBools() {
-  checkPrefix(c.bools, [[true, false]]);
-  checkUndefined(c.bools, 1, 500);
+  checkEquals(c.bools, [[true, false]]);
 }
 
 void testNats() {
@@ -45,7 +28,7 @@ void testNats() {
   for (int n = 0; n < 500; n++) {
     expected.add([n]);
   }
-  checkPrefix(c.nats, expected);
+  checkPrefixEquals(c.nats, expected);
 }
 
 void testInts() {
@@ -53,7 +36,7 @@ void testInts() {
   for (int n = 1; n < 500; n++) {
     expected.add([n, -n]);
   }
-  checkPrefix(c.ints, expected);
+  checkPrefixEquals(c.ints, expected);
 }
 
 void testStrings() {
@@ -74,7 +57,7 @@ void testStrings() {
     }
   }
   final expected = [[''], expected1, expected2, expected3];
-  checkPrefix(c.strings, expected);
+  checkPrefixEquals(c.strings, expected);
 }
 
 void testListsOfBools() {
@@ -86,7 +69,7 @@ void testListsOfBools() {
     [[t, t], [t, f], [f, t], [f, f]],
     [[t, t, t], [t, t, f], [t, f, t], [t, f, f],
      [f, t, t], [f, t, f], [f, f, t], [f, f, f]]];
-  checkPrefix(enum, expected);
+  checkPrefixEquals(enum, expected);
 }
 
 void testListsOfNats() {
@@ -98,7 +81,7 @@ void testListsOfNats() {
     [[0, 0, 0], [0, 1], [1, 0], [2]],
     [[0, 0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 2],
      [1, 0, 0], [1, 1], [2, 0], [3]]];
-  checkPrefix(enum, expected);
+  checkPrefixEquals(enum, expected);
 }
 
 main() {

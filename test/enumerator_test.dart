@@ -16,8 +16,30 @@
 
 import 'package:dart_enumerators/enumerators.dart';
 import 'package:unittest/unittest.dart';
+import 'src/common.dart';
+
+
+
+void testPay() {
+  checkEquals(empty().pay(), [[]]);
+
+  final e        = [    [1,2], [], [3]];
+  final expected = [[], [1,2], [], [3]];
+  checkEquals(listToEnum(e).pay(), expected);
+}
+
+void testPlus() {
+  final e1       = [[1,2], [3,4    ]     ];
+  final e2       = [[],    [    5,6], [7]];
+  final expected = [[1,2], [3,4,5,6], [7]];
+  checkEquals(listToEnum(e1) + listToEnum(e2), expected);
+}
 
 void main() {
   test('empty.parts is empty',
        () => expect(empty().parts.isEmpty(), isTrue));
+  test('singleton is a singleton',
+       () => checkEquals(singleton('foo'), [['foo']]));
+  test('pay shifts an enumeration', testPay);
+  test('+ behaves as expected', testPlus);
 }
