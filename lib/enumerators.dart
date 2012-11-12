@@ -317,7 +317,7 @@ class Enumeration<A> {
   factory Enumeration.fix(Enumeration f(Enumeration)) {
     final enum = new Enumeration(null);
     final result = f(enum);
-    enum.gen = result.gen;
+    enum._parts = result.parts;
     return result;
   }
 
@@ -383,6 +383,9 @@ class Enumeration<A> {
 
     goY(LazyList<Finite> ry(), LazyList<LazyList<Finite>> rys()) {
       final _ry = ry();
+      print("la");
+      print(xs.head);
+      print(xs.take(1).head);
       return new LazyList.cons(
         _conv(xs)(_ry),
         () {
