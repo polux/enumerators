@@ -116,7 +116,7 @@ abstract class Finite<A> {
   LazyList<A> toLazyList() {
     aux(i) => (i == this.card)
         ? new LazyList.empty()
-        : new LazyList(() => new Pair(this[i], aux(i+1)));
+        : new LazyList.cons(this[i], () => aux(i+1));
     return aux(0);
   }
 }
@@ -165,64 +165,44 @@ class _FMap<A,B> extends Finite<B> {
 /**
  * A lazy list, possibly infinite.
  */
-class LazyList<A> {
-  final Function gen;
-  A _cachedHead;
-  LazyList<A> _cachedTail;
+abstract class LazyList<A> {
+  LazyList._();
+  factory LazyList.empty() => new _Empty();
+  factory LazyList.cons(A head, LazyList<A> gen()) => new _Cons(head, gen);
+  factory LazyList.singleton(A elem) => new _Cons(elem, () => new LazyList.empty());
 
-  LazyList(Pair<A, LazyList<A>> gen()) : this.gen = gen;
-  factory LazyList.empty() => new LazyList(null);
-  factory LazyList.singleton(A x) =>
-      new LazyList(() => new Pair(x, new LazyList.empty()));
-  factory LazyList.repeat(A x) =>
-      new LazyList(() => new Pair(x, new LazyList.repeat(x)));
+  bool isEmpty();
+  A get head;
+  LazyList<A> get tail;
 
-  bool isEmpty() => gen == null;
-
-  void _force() {
-    final pair = gen();
-    _cachedHead = pair.fst;
-    _cachedTail = pair.snd;
-  }
-
-  get head {
-    if (_cachedHead == null) _force();
-    return _cachedHead;
-  }
-
-  get tail {
-    if (_cachedTail == null) _force();
-    return _cachedTail;
-  }
-
-  void forEach(f(A x)) {
-    LazyList<A> s = this;
-    while (!s.isEmpty()) {
-      f(s.head);
-      s = s.tail;
-    }
-  }
-
-  LazyList take(int length) {
-    aux(LazyList rest, int n) => (n == 0 || rest.isEmpty())
-        ? new LazyList.empty()
-        : new LazyList(() => new Pair(rest.head, aux(rest.tail, n - 1)));
-    return aux(this, length);
-  }
+  LazyList take(int length);
 
   /**
    * [s] appended to [this].
    */
-  LazyList operator +(LazyList s) => this.isEmpty()
-      ? s
-      : new LazyList(() => new Pair(head, tail + s));
+  LazyList operator +(LazyList s);
 
   /**
    * Concatenates this, Assuming [: A = Stream<Stream<B>> :].
    */
-  LazyList concat() => this.isEmpty()
-      ? new LazyList.empty()
-      : new LazyList(() => (this.head + this.tail.concat()).gen());
+  LazyList concat();
+
+  /**
+   * [LazyList] is a functor.
+   */
+  LazyList map(f(A x));
+
+  /**
+   * [: [a,b,c,d].zipWith(f, [x,y,z]) :] is [: [f(a,z), f(b,y), f(c,z)] :].
+   */
+  LazyList zipWith(f(x,y), LazyList ys);
+
+  /**
+   * Linear indexing.
+   */
+  A operator[](int index);
+
+  LazyList<LazyList> tails();
 
   /**
    * Cartesian product.
@@ -231,24 +211,17 @@ class LazyList<A> {
       this.map((x) => s.map((y) => new Pair(x,y))).concat();
 
   /**
-   * [LazyList] is a functor.
-   */
-  LazyList map(f(A x)) => this.isEmpty()
-      ? new LazyList.empty()
-      : new LazyList(() => new Pair(f(head), tail.map(f)));
-
-  /**
    * [LazyList] is an applicative functor.
    */
   LazyList apply(LazyList s) => (this * s).map((pair) => pair.fst(pair.snd));
 
-  /**
-   * [: [a,b,c,d].zipWith(f, [x,y,z]) :] is [: [f(a,z), f(b,y), f(c,z)] :].
-   */
-  LazyList zipWith(f(x,y), LazyList ys) => (this.isEmpty() || ys.isEmpty())
-      ? new LazyList.empty()
-      : new LazyList(() =>
-          new Pair(f(this.head, ys.head), this.tail.zipWith(f, ys.tail)));
+  void forEach(f(A x)) {
+    LazyList<A> s = this;
+    while (!s.isEmpty()) {
+      f(s.head);
+      s = s.tail;
+    }
+  }
 
   /**
    * [: [a,b,c].foldLeft(zero, +) :] is [: zero + a + b + c :].
@@ -259,22 +232,6 @@ class LazyList<A> {
     return result;
   }
 
-  LazyList<LazyList> tails() => this.isEmpty()
-      ? new LazyList.singleton(new LazyList.empty())
-      : new LazyList(() => new Pair(this, this.tail.tails()));
-
-  /**
-   * Linear indexing.
-   */
-  A operator[](int index) {
-    getAt(LazyList l, int i) {
-      if (l.isEmpty()) throw new RangeError(index);
-      if (i == 0) return l.head;
-      return getAt(l.tail, i - 1);
-    }
-    return getAt(this, index);
-  }
-
   List<A> toList() {
     final res = [];
     this.forEach((A x) { res.add(x); });
@@ -282,26 +239,96 @@ class LazyList<A> {
   }
 
   String toString() => toList().toString();
+
+  LazyList _lazyPlus(LazyList gen());
+}
+
+class _Empty<A> extends LazyList<A> {
+  _Empty() : super._();
+  bool isEmpty() => true;
+  get head => throw new UnsupportedError();
+  get tail => throw new UnsupportedError();
+  LazyList take(int length) => this;
+  LazyList operator +(LazyList s) => s;
+  LazyList concat() => this;
+  LazyList map(f(A x)) => this;
+  LazyList zipWith(f(x,y), LazyList ys) => this;
+  LazyList<LazyList> tails() => new LazyList.singleton(new LazyList.empty());
+  A operator[](int index) => throw new RangeError(index);
+  LazyList _lazyPlus(LazyList gen()) => gen();
+}
+
+class _Cons<A> extends LazyList<A> {
+  final A head;
+  final Function gen;
+  LazyList<A> _cachedTail;
+
+  _Cons(this.head, this.gen) : super._();
+  factory LazyList.empty() => new LazyList(null);
+  factory LazyList.singleton(A x) =>
+      new LazyList(() => new Pair(x, new LazyList.empty()));
+
+  bool isEmpty() => false;
+
+  get tail {
+    if (_cachedTail == null) {
+      _cachedTail = gen();
+    }
+    return _cachedTail;
+  }
+
+  LazyList take(int n) =>
+    (n == 0) ? new LazyList.empty()
+             : new LazyList.cons(head, () => tail.take(n - 1));
+
+  LazyList operator +(LazyList s) =>
+    new LazyList.cons(head, () => tail + s);
+
+  LazyList _lazyPlus(LazyList gen()) =>
+    new LazyList.cons(head, gen);
+
+  LazyList concat() => this.head._lazyPlus(() => this.tail.concat());
+
+  LazyList map(f(A x)) =>
+    new LazyList.cons(f(head), () => tail.map(f));
+
+  LazyList zipWith(f(x,y), LazyList ys) =>
+    ys.isEmpty()
+      ? new LazyList.empty()
+      : new LazyList.cons(f(this.head, ys.head),
+                          () => this.tail.zipWith(f, ys.tail));
+
+  LazyList<LazyList> tails() =>
+    new LazyList.cons(this, () => this.tail.tails());
+
+  A operator[](int index) =>
+    (index == 0) ? head
+                 : tail[index - 1];
 }
 
 /**
  * An enumeration of finite parts of A.
  */
 class Enumeration<A> {
-  // morally final, but Enumeration.fix needs to reset it
-  LazyList<Finite<A>> parts;
+  Function gen;
+  LazyList<Finite<A>> _parts;
 
-  Enumeration(this.parts);
-  factory Enumeration._fromGen(Pair<Finite<A>, LazyList<Finite<A>>> gen()) =>
-      new Enumeration(new LazyList(gen));
-  factory Enumeration.empty() => new Enumeration(new LazyList.empty());
+  Enumeration(LazyList<Finite<A>> gen()) : this.gen = gen;
+  factory Enumeration.empty() => new Enumeration(() => new LazyList.empty());
   factory Enumeration.singleton(A x) =>
-      new Enumeration(new LazyList.singleton(new Finite.singleton(x)));
+      new Enumeration(() => new LazyList.singleton(new Finite.singleton(x)));
   factory Enumeration.fix(Enumeration f(Enumeration)) {
     final enum = new Enumeration(null);
     final result = f(enum);
-    enum.parts = result.parts;
+    enum.gen = result.gen;
     return result;
+  }
+
+  LazyList<Finite<A>> get parts {
+    if (_parts == null) {
+      _parts = gen();
+    }
+    return _parts;
   }
 
   A operator [](int i) {
@@ -321,21 +348,21 @@ class Enumeration<A> {
   static LazyList<Finite> _zipPlus(LazyList<Finite> xs, LazyList<Finite> ys) =>
       (xs.isEmpty() || ys.isEmpty())
           ? xs + ys
-          : new LazyList(() =>
-                new Pair(xs.head + ys.head, _zipPlus(xs.tail, ys.tail)));
+          : new LazyList.cons(xs.head + ys.head,
+                              () => _zipPlus(xs.tail, ys.tail));
 
   /**
    * Disjoint union (it is up to the user to make sure that operands are
    * disjoint).
    */
   Enumeration<A> operator +(Enumeration<A> e) =>
-      new Enumeration<A>._fromGen(() => _zipPlus(this.parts, e.parts).gen());
+      new Enumeration<A>(() => _zipPlus(this.parts, e.parts));
 
   /**
    * [Enumeration] is a functor.
    */
   Enumeration map(f(A x)) =>
-      new Enumeration._fromGen(() => parts.map((p) => p.map(f)).gen());
+      new Enumeration(() => parts.map((p) => p.map(f)));
 
   /**
    * [: _reversals([1,2,3,...]) :] is [: [[1], [2,1], [3,2,1], ...] :].
@@ -343,8 +370,8 @@ class Enumeration<A> {
   static LazyList<LazyList> _reversals(LazyList l) {
     go(LazyList rev, LazyList xs) {
       if (xs.isEmpty()) return new LazyList.empty();
-      final newrev = new LazyList(() => new Pair(xs.head, rev));
-      return new LazyList(() => new Pair(newrev, go(newrev, xs.tail)));
+      final newrev = new LazyList.cons(xs.head, () => rev);
+      return new LazyList.cons(newrev, () => go(newrev, xs.tail));
     }
     return go(new LazyList.empty(), l);
   }
@@ -355,14 +382,13 @@ class Enumeration<A> {
     goX(ry) =>
         xs.tail.tails().map((fs) => _conv(fs)(ry));
 
-    goY(LazyList<Finite> ry(), LazyList<LazyList<Finite>> rys()) =>
-        new LazyList(() {
-          final _ry = ry();
-          final _rys = rys();
-          return new Pair(
-            _conv(xs)(_ry),
-            _rys.isEmpty() ? goX(_ry) : goY(() => _rys.head, () => _rys.tail));
-        });
+    goY(LazyList<Finite> ry(), LazyList<LazyList<Finite>> rys()) {
+      final _ry = ry();
+      final _rys = rys();
+      return new LazyList.cons(
+        _conv(xs)(_ry),
+        () => _rys.isEmpty() ? goX(_ry) : goY(() => _rys.head, () => _rys.tail));
+    };
 
     return goY(() => yss.head, () => yss.tail);
   }
@@ -376,8 +402,8 @@ class Enumeration<A> {
    * Cartesian product.
    */
   Enumeration<Pair> operator *(Enumeration<A> e) =>
-      new Enumeration<Pair>._fromGen(() =>
-          _prod(this.parts, _reversals(e.parts)).gen());
+      new Enumeration<Pair>(() =>
+          _prod(this.parts, _reversals(e.parts)));
 
 
   /**
@@ -389,8 +415,8 @@ class Enumeration<A> {
   /**
    * Pays for one recursive call.
    */
-  Enumeration<A> pay() => new Enumeration<A>._fromGen(
-      () => new Pair(new Finite.empty(), this.parts));
+  Enumeration<A> pay() => new Enumeration<A>(
+      () => new LazyList.cons(new Finite.empty(), () => this.parts));
 
   toString() => "Enum $parts";
 }
