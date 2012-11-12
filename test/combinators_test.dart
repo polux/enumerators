@@ -88,12 +88,10 @@ main() {
   test('bools is { 0: [true, false] }', testBools);
   test('nats is { 0: [], 1: [0], 2: [1], ... }', testNats);
   test('ints is { 0: [0], 1: [1, -1], 2: [2, -2], ... }', testInts);
-  /*
   test('strings is { 0: [""], 1: ["a".."z"], 2: ["aa", "ab", ...], ... }',
        testStrings);
   test('listsOf(bools) is { 0: [[]], 1: [[true], [false]], .. }',
        testListsOfBools);
   test('listsOf(nats) is { 0: [[0]], 1: [[0, 0], [1]], .. }',
        testListsOfNats);
-       */
 }

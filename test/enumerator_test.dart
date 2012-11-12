@@ -35,6 +35,15 @@ void testPlus() {
   checkEquals(listToEnum(e1) + listToEnum(e2), expected);
 }
 
+void testMult() {
+  p(x, y) => new Pair(x, y);
+  final e1 = [[1,2], [3,4], [5,6]];
+  final e2 = [[7,8], [9,10], [11,12]];
+
+  checkEquals(empty() * listToEnum(e1), []);
+  //checkEquals(listToEnum(e1) * empty(), []);
+}
+
 void main() {
   test('empty.parts is empty',
        () => expect(empty().parts.isEmpty(), isTrue));
@@ -42,4 +51,5 @@ void main() {
        () => checkEquals(singleton('foo'), [['foo']]));
   test('pay shifts an enumeration', testPay);
   test('+ behaves as expected', testPlus);
+  test('* behaves as expected', testMult);
 }

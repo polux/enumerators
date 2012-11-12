@@ -345,6 +345,8 @@ class Enumeration<A> {
   LazyList<A> toLazyList() =>
       parts.map((f) => f.toLazyList()).concat();
 
+  static debug(x) { print("here"); return x; }
+
   static LazyList<Finite> _zipPlus(LazyList<Finite> xs, LazyList<Finite> ys) =>
       (xs.isEmpty() || ys.isEmpty())
           ? xs + ys
@@ -384,10 +386,14 @@ class Enumeration<A> {
 
     goY(LazyList<Finite> ry(), LazyList<LazyList<Finite>> rys()) {
       final _ry = ry();
-      final _rys = rys();
       return new LazyList.cons(
         _conv(xs)(_ry),
-        () => _rys.isEmpty() ? goX(_ry) : goY(() => _rys.head, () => _rys.tail));
+        () {
+          final _rys = rys();
+          return _rys.isEmpty()
+              ? goX(_ry)
+              : goY(() => _rys.head, () => _rys.tail);
+        });
     };
 
     return goY(() => yss.head, () => yss.tail);
