@@ -246,15 +246,15 @@ abstract class LazyList<A> {
 class _Empty<A> extends LazyList<A> {
   _Empty() : super._();
   bool isEmpty() => true;
-  get head => throw new UnsupportedError();
-  get tail => throw new UnsupportedError();
+  get head => throw new UnsupportedError("empty lazy lists don't have heads");
+  get tail => throw new UnsupportedError("empty lazy lists don't have tails");
   LazyList take(int length) => this;
   LazyList operator +(LazyList s) => s;
   LazyList concat() => this;
   LazyList map(f(A x)) => this;
   LazyList zipWith(f(x,y), LazyList ys) => this;
   LazyList<LazyList> tails() => new LazyList.singleton(new LazyList.empty());
-  A operator[](int index) => throw new RangeError(index);
+  operator[](int index) => throw new RangeError(index);
   LazyList _lazyPlus(LazyList gen()) => gen();
 }
 
@@ -264,9 +264,6 @@ class _Cons<A> extends LazyList<A> {
   LazyList<A> _cachedTail;
 
   _Cons(this.head, this.gen) : super._();
-  factory LazyList.empty() => new LazyList(null);
-  factory LazyList.singleton(A x) =>
-      new LazyList(() => new Pair(x, new LazyList.empty()));
 
   bool isEmpty() => false;
 
