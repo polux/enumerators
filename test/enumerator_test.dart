@@ -18,8 +18,6 @@ import 'package:dart_enumerators/enumerators.dart';
 import 'package:unittest/unittest.dart';
 import 'src/common.dart';
 
-
-
 void testPay() {
   checkEquals(empty().pay(), [[]]);
 
@@ -52,6 +50,36 @@ void testMult() {
   checkEquals(listToEnum(e1) * listToEnum(e2), expected);
 }
 
+void testMap() {
+  final e = [[1,2], [3,4,5], [], [6,7]];
+  final expected = [[2,3], [4,5,6], [], [7,8]];
+  checkEquals(listToEnum(e).map((n) => n + 1), expected);
+}
+
+void testApply() {
+  final f = [[(n) => n, (n) => n * 2], [(n) => n * 3]];
+  final e = [[1,3], [5,7]];
+  final expected = [[1, 3, 1 * 2, 3 * 2],
+                    [5, 7, 5 * 2, 7 * 2, 1 * 3, 3 * 3],
+                    [5 * 3, 7 * 3],
+                    []];
+  checkEquals(listToEnum(f).apply(listToEnum(e)), expected);
+}
+
+void testFix() {
+  final e = fix((e) => singleton('foo') + e.pay());
+  final expected = [];
+  for (int i = 0; i < 100; i++) {
+    expected.add(['foo']);
+  }
+  checkPrefixEquals(e, expected);
+}
+
+void testKnot() {
+  final e = fix((e) => singleton('foo') + e.pay());
+  expect(e.parts.tail, same(e.parts));
+}
+
 void main() {
   test('empty.parts is empty',
        () => expect(empty().parts.isEmpty(), isTrue));
@@ -60,4 +88,8 @@ void main() {
   test('pay shifts an enumeration', testPay);
   test('+ behaves as expected', testPlus);
   test('* behaves as expected', testMult);
+  test('map behaves as expected', testMap);
+  test('apply behaves as expected', testApply);
+  test('fix e.(foo + e.pay) is foo foo foo ...', testFix);
+  test('fix ties the knot', testKnot);
 }
