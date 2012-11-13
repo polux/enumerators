@@ -193,11 +193,6 @@ abstract class LazyList<A> {
   LazyList map(f(A x));
 
   /**
-   * [: [a,b,c,d].zipWith(f, [x,y,z]) :] is [: [f(a,z), f(b,y), f(c,z)] :].
-   */
-  LazyList zipWith(f(x,y), LazyList ys);
-
-  /**
    * Linear indexing.
    */
   A operator[](int index);
@@ -225,17 +220,6 @@ abstract class LazyList<A> {
 
   static int counter = 0;
 
-  /**
-   * [: [a,b,c].foldLeft(zero, +) :] is [: zero + a + b + c :].
-   */
-  foldLeft(zero, plus) {
-    var result = zero;
-    counter++;
-    int i = 0;
-    this.forEach((x) { result = plus(result, x); });
-    return result;
-  }
-
   List<A> toList() {
     final res = [];
     this.forEach((A x) { res.add(x); });
@@ -256,7 +240,6 @@ class _Empty<A> extends LazyList<A> {
   LazyList operator +(LazyList s) => s;
   LazyList concat() => this;
   LazyList map(f(A x)) => this;
-  LazyList zipWith(f(x,y), LazyList ys) => this;
   LazyList<LazyList> tails() => new LazyList.singleton(new LazyList.empty());
   operator[](int index) => throw new RangeError(index);
   LazyList _lazyPlus(LazyList gen()) => gen();
@@ -286,24 +269,12 @@ class _Cons<A> extends LazyList<A> {
     new LazyList.cons(head, () => tail + s);
 
   LazyList _lazyPlus(LazyList gen()) =>
-    new LazyList.cons(head, gen);
+    new LazyList.cons(head, () => tail._lazyPlus(gen));
 
   LazyList concat() => this.head._lazyPlus(() => this.tail.concat());
 
   LazyList map(f(A x)) =>
     new LazyList.cons(f(head), () => tail.map(f));
-
-  LazyList zipWith(f(x,y), LazyList ys) =>
-    ys.isEmpty()
-      ? new LazyList.empty()
-      : new LazyList.cons(
-          f(this.head, ys.head),
-          () {
-            final ysTail = ys.tail;
-            return (ys.tail.isEmpty())
-                ? new LazyList.empty()
-                : this.tail.zipWith(f, ys.tail);
-          });
 
   LazyList<LazyList> tails() =>
     new LazyList.cons(this, () => this.tail.tails());
@@ -398,11 +369,11 @@ class Enumeration<A> {
     if (xs.isEmpty() || yss.isEmpty()) return new LazyList.empty();
 
     goX(ry) =>
-        xs.tail.tails().map((fs) => _conv(fs)(ry));
+        xs.tail.tails().map((fs) => _conv(fs, ry));
 
     goY(LazyList<Finite> ry, LazyList<LazyList<Finite>> rys()) {
       return new LazyList.cons(
-        _conv(xs)(ry),
+        _conv(xs, ry),
         () {
           final _rys = rys();
           return _rys.isEmpty()
@@ -414,10 +385,17 @@ class Enumeration<A> {
     return goY(yss.head, () => yss.tail);
   }
 
-  static _conv(LazyList<Finite> xs) =>
-      (LazyList<Finite> ys) =>
-          xs.zipWith((f1, f2) => f1 * f2, ys)
-            .foldLeft(new Finite.empty(), (f1, f2) => f1 + f2);
+  static _conv(LazyList<Finite> xs, LazyList<Finite> ys) {
+    var result = new Finite.empty();
+    if (ys.isEmpty()) return result;
+    while(true) {
+      if (xs.isEmpty()) return result;
+      result = result + (xs.head * ys.head);
+      ys = ys.tail;
+      if (ys.isEmpty()) return result;
+      xs = xs.tail;
+    }
+  }
 
   /**
    * Cartesian product.
