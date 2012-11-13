@@ -20,7 +20,9 @@ import 'package:dart_enumerators/enumerators.dart';
 import 'package:unittest/unittest.dart';
 
 Enumeration listToEnum(List<List> list) {
-  return new Enumeration(() => _listToLazyList(list.map(_listToFinite)));
+  return new Enumeration(
+      new Thunk(
+          () => _listToLazyList(list.map(_listToFinite))));
 }
 
 Finite _listToFinite(List list) {

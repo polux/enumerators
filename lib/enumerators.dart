@@ -223,11 +223,15 @@ abstract class LazyList<A> {
     }
   }
 
+  static int counter = 0;
+
   /**
    * [: [a,b,c].foldLeft(zero, +) :] is [: zero + a + b + c :].
    */
   foldLeft(zero, plus) {
     var result = zero;
+    counter++;
+    int i = 0;
     this.forEach((x) { result = plus(result, x); });
     return result;
   }
@@ -292,8 +296,14 @@ class _Cons<A> extends LazyList<A> {
   LazyList zipWith(f(x,y), LazyList ys) =>
     ys.isEmpty()
       ? new LazyList.empty()
-      : new LazyList.cons(f(this.head, ys.head),
-                          () => this.tail.zipWith(f, ys.tail));
+      : new LazyList.cons(
+          f(this.head, ys.head),
+          () {
+            final ysTail = ys.tail;
+            return (ys.tail.isEmpty())
+                ? new LazyList.empty()
+                : this.tail.zipWith(f, ys.tail);
+          });
 
   LazyList<LazyList> tails() =>
     new LazyList.cons(this, () => this.tail.tails());
@@ -303,30 +313,39 @@ class _Cons<A> extends LazyList<A> {
                  : tail[index - 1];
 }
 
+class Thunk<A> {
+  A _cached;
+  Function gen;
+  Thunk(A gen()) : this.gen = gen;
+  A get value {
+    if (_cached == null) {
+      _cached = gen();
+    }
+    return _cached;
+  }
+}
+
 /**
  * An enumeration of finite parts of A.
  */
 class Enumeration<A> {
-  Function gen;
-  LazyList<Finite<A>> _parts;
+  Thunk<LazyList<Finite<A>>> thunk;
 
-  Enumeration(LazyList<Finite<A>> gen()) : this.gen = gen;
-  factory Enumeration.empty() => new Enumeration(() => new LazyList.empty());
+  Enumeration(this.thunk);
+  factory Enumeration.empty() =>
+      new Enumeration(
+          new Thunk(() => new LazyList.empty()));
   factory Enumeration.singleton(A x) =>
-      new Enumeration(() => new LazyList.singleton(new Finite.singleton(x)));
+      new Enumeration(
+          new Thunk(() => new LazyList.singleton(new Finite.singleton(x))));
   factory Enumeration.fix(Enumeration f(Enumeration)) {
     final enum = new Enumeration(null);
     final result = f(enum);
-    enum._parts = result.parts;
+    enum.thunk = result.thunk;
     return result;
   }
 
-  LazyList<Finite<A>> get parts {
-    if (_parts == null) {
-      _parts = gen();
-    }
-    return _parts;
-  }
+  LazyList<Finite<A>> get parts => thunk.value;
 
   A operator [](int i) {
     var ps = parts;
@@ -342,8 +361,6 @@ class Enumeration<A> {
   LazyList<A> toLazyList() =>
       parts.map((f) => f.toLazyList()).concat();
 
-  static debug(x) { print("here"); return x; }
-
   static LazyList<Finite> _zipPlus(LazyList<Finite> xs, LazyList<Finite> ys) =>
       (xs.isEmpty() || ys.isEmpty())
           ? xs + ys
@@ -355,13 +372,15 @@ class Enumeration<A> {
    * disjoint).
    */
   Enumeration<A> operator +(Enumeration<A> e) =>
-      new Enumeration<A>(() => _zipPlus(this.parts, e.parts));
+      new Enumeration<A>(
+          new Thunk(() => _zipPlus(this.parts, e.parts)));
 
   /**
    * [Enumeration] is a functor.
    */
   Enumeration map(f(A x)) =>
-      new Enumeration(() => parts.map((p) => p.map(f)));
+      new Enumeration(
+          new Thunk(() => parts.map((p) => p.map(f))));
 
   /**
    * [: _reversals([1,2,3,...]) :] is [: [[1], [2,1], [3,2,1], ...] :].
@@ -381,22 +400,18 @@ class Enumeration<A> {
     goX(ry) =>
         xs.tail.tails().map((fs) => _conv(fs)(ry));
 
-    goY(LazyList<Finite> ry(), LazyList<LazyList<Finite>> rys()) {
-      final _ry = ry();
-      print("la");
-      print(xs.head);
-      print(xs.take(1).head);
+    goY(LazyList<Finite> ry, LazyList<LazyList<Finite>> rys()) {
       return new LazyList.cons(
-        _conv(xs)(_ry),
+        _conv(xs)(ry),
         () {
           final _rys = rys();
           return _rys.isEmpty()
-              ? goX(_ry)
-              : goY(() => _rys.head, () => _rys.tail);
+              ? goX(ry)
+              : goY(_rys.head, () => _rys.tail);
         });
     };
 
-    return goY(() => yss.head, () => yss.tail);
+    return goY(yss.head, () => yss.tail);
   }
 
   static _conv(LazyList<Finite> xs) =>
@@ -408,8 +423,9 @@ class Enumeration<A> {
    * Cartesian product.
    */
   Enumeration<Pair> operator *(Enumeration<A> e) =>
-      new Enumeration<Pair>(() =>
-          _prod(this.parts, _reversals(e.parts)));
+      new Enumeration<Pair>(
+          new Thunk(() =>
+              _prod(this.parts, _reversals(e.parts))));
 
 
   /**
@@ -422,7 +438,8 @@ class Enumeration<A> {
    * Pays for one recursive call.
    */
   Enumeration<A> pay() => new Enumeration<A>(
-      () => new LazyList.cons(new Finite.empty(), () => this.parts));
+      new Thunk(() =>
+          new LazyList.cons(new Finite.empty(), () => this.parts)));
 
   toString() => "Enum $parts";
 }
