@@ -28,7 +28,7 @@
 <div class="content">
 <h2><strong>combinators</strong> library</h2>
 <div>
-<h3>Variables</h3>
+<h3>Properties</h3>
 <div class="field"><h4 id="bools">
 <button class="show-code">Code</button>
 final <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/bool.html">bool</a>&gt;         <strong>bools</strong> <a class="anchor-link"
@@ -80,21 +80,6 @@ final Enumeration&lt;String&gt; strings = _mkStrings();
 </div>
 <div>
 <h3>Functions</h3>
-<div class="method"><h4 id="listsOf">
-<button class="show-code">Code</button>
-<a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/List.html">List</a>&gt; <strong>listsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> enum) <a class="anchor-link" href="#listsOf"
-              title="Permalink to listsOf">#</a></h4>
-<div class="doc">
-<pre class="source">
-Enumeration&lt;List&gt; listsOf(Enumeration enum) {
-  final nils = singleton(_nil());
-  consesOf(e) =&gt; singleton(_cons).apply(enum).apply(e);
-  final llists = fix((e) =&gt; (nils + consesOf(e).pay()));
-  return llists.map((ll) =&gt; ll.toList());
-}
-</pre>
-</div>
-</div>
 <div class="method"><h4 id="mapsOf">
 <button class="show-code">Code</button>
 <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/Map.html">Map</a>&gt; <strong>mapsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> keys, <a href="enumerators/Enumeration.html">Enumeration</a> values) <a class="anchor-link" href="#mapsOf"
@@ -102,17 +87,17 @@ Enumeration&lt;List&gt; listsOf(Enumeration enum) {
 <div class="doc">
 <pre class="source">
 Enumeration&lt;Map&gt; mapsOf(Enumeration keys, Enumeration values) {
-  // bijection from lists of (nat x value) to maps of (key x value)
-  bij(assocs) {
-    var res = new Map();
-    int sum = -1;
-    for (final assoc in assocs) {
-      sum += 1 + assoc.fst;
-      res[keys[sum]] = assoc.snd;
-    }
-    return res;
-  }
-  return listsOf(nats * values).map(bij);
+ // bijection from lists of (nat x value) to maps of (key x value)
+ bij(assocs) {
+   var res = new Map();
+   int sum = -1;
+   for (final assoc in assocs) {
+     sum += 1 + assoc.fst;
+     res[keys[sum]] = assoc.snd;
+   }
+   return res;
+ }
+ return listsOf(nats * values).map(bij);
 
 }
 </pre>
@@ -125,17 +110,32 @@ Enumeration&lt;Map&gt; mapsOf(Enumeration keys, Enumeration values) {
 <div class="doc">
 <pre class="source">
 Enumeration&lt;Set&gt; setsOf(Enumeration enum) {
-  // bijection from lists of nats to sets of values
-  bij(list) {
-    var res = new Set();
-    int sum = -1;
-    for (final x in list) {
-      sum += 1 + x;
-      res.add(enum[sum]);
-    }
-    return res;
-  }
-  return listsOf(nats).map(bij);
+ // bijection from lists of nats to sets of values
+ bij(list) {
+   var res = new Set();
+   int sum = -1;
+   for (final x in list) {
+     sum += 1 + x;
+     res.add(enum[sum]);
+   }
+   return res;
+ }
+ return listsOf(nats).map(bij);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="listsOf">
+<button class="show-code">Code</button>
+<a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/List.html">List</a>&gt; <strong>listsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> enum) <a class="anchor-link" href="#listsOf"
+              title="Permalink to listsOf">#</a></h4>
+<div class="doc">
+<pre class="source">
+Enumeration&lt;List&gt; listsOf(Enumeration enum) {
+ final nils = singleton(_nil());
+ consesOf(e) =&gt; singleton(_cons).apply(enum).apply(e);
+ final llists = fix((e) =&gt; (nils + consesOf(e).pay()));
+ return llists.map((ll) =&gt; ll.toList());
 }
 </pre>
 </div>
@@ -146,7 +146,7 @@ Enumeration&lt;Set&gt; setsOf(Enumeration enum) {
         </div>
         
         <div class="footer">
-          <div>This page was generated at 2012-10-10 21:23:41.226</div>
+          <div>This page was generated at 2012-11-13 03:25:18.110</div>
         </div>
         <script async src="client-live-nav.js"></script>
         </body></html>
