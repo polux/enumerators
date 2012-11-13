@@ -37,11 +37,19 @@ void testPlus() {
 
 void testMult() {
   p(x, y) => new Pair(x, y);
-  final e1 = [[1,2], [3,4], [5,6]];
-  final e2 = [[7,8], [9,10], [11,12]];
+  final e1 = [[1], [2,3], [4]];
+  final e2 = [[5,6], [7], [8]];
 
   checkEquals(empty() * listToEnum(e1), []);
-  //checkEquals(listToEnum(e1) * empty(), []);
+  checkEquals(listToEnum(e1) * empty(), []);
+
+  final expected = [[p(1, 5), p(1, 6)],
+                    [p(1, 7), p(2, 5), p(2, 6), p(3, 5), p(3, 6)],
+                    [p(1, 8), p(2, 7), p(3, 7), p(4, 5), p(4, 6)],
+                    [p(2, 8), p(3, 8), p(4, 7)],
+                    [p(4, 8)],
+                    []];
+  checkEquals(listToEnum(e1) * listToEnum(e2), expected);
 }
 
 void main() {
