@@ -1,6 +1,6 @@
 Dart Enumerators: Random Access Enumerations of Dart Datatypes
 
-For license information, please see COPYING.
+For license information, please see LICENSE.
 
 dart_enumerators is a library which allows for randomized or exhaustive testing
 of Dart functions by providing random access enumerations of Dart datatypes. It
