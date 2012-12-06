@@ -1,0 +1,103 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Thunk&lt;A&gt; class / enumerators Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="enumerators" data-type="Thunk&amp;lt;A&amp;gt;">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../enumerators.html">enumerators</a> &rsaquo; <a href="../enumerators/Thunk.html">Thunk&lt;A&gt;</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Thunk&lt;A&gt;</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class Thunk&lt;A&gt; {
+ A _cached;
+ Function gen;
+ Thunk(A gen()) : this.gen = gen;
+ A get value {
+   if (_cached == null) {
+     _cached = gen();
+   }
+   return _cached;
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="Thunk">
+<button class="show-code">Code</button>
+new <strong>Thunk</strong>(<a href="../enumerators/Thunk.html">A</a> gen()) <a class="anchor-link" href="#Thunk"
+              title="Permalink to Thunk&lt;A&gt;.Thunk">#</a></h4>
+<div class="doc">
+<pre class="source">
+Thunk(A gen()) : this.gen = gen;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="gen">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/Function.html">Function</a>         <strong>gen</strong> <a class="anchor-link"
+            href="#gen"
+            title="Permalink to Thunk&lt;A&gt;.gen">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+Function gen;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="value">
+<button class="show-code">Code</button>
+final <a href="../enumerators/Thunk.html">A</a>         <strong>value</strong> <a class="anchor-link"
+            href="#value"
+            title="Permalink to Thunk&lt;A&gt;.value">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+A get value {
+ if (_cached == null) {
+   _cached = gen();
+ }
+ return _cached;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        
+        <div class="footer">
+          <div>This page was generated at 2012-12-06 02:55:19.719</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

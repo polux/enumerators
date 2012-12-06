@@ -9,5 +9,6 @@ git clone https://code.google.com/p/dart-enumerators/
 cd dart-enumerators
 pub install
 rm -rf $OUTDIR
-dartdoc -v --generate-app-cache --link-api --pkg=packages/ --out $OUTDIR lib/enumerators.dart lib/combinators.dart
+dartdoc -v --link-api --pkg=packages/ --out $OUTDIR lib/enumerators.dart lib/combinators.dart
+#dartdoc -v --generate-app-cache --link-api --pkg=packages/ --out $OUTDIR lib/enumerators.dart lib/combinators.dart
 rm -rf $TMPDIR
