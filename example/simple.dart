@@ -4,7 +4,7 @@
 // Author: Paul Brauner (polux@google.com)
 
 library simple;
-import 'package:dart_enumerators/combinators.dart' as c;
+import 'package:enumerators/combinators.dart' as c;
 
 main() {
   // c.strings is an enumeration: a infinite list of finite parts

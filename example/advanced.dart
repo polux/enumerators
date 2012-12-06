@@ -5,7 +5,7 @@
 
 library advanced;
 
-import 'package:dart_enumerators/enumerators.dart';
+import 'package:enumerators/enumerators.dart';
 
 /** datatypes **/
 

@@ -5,7 +5,7 @@
 
 library combinators;
 
-import 'package:dart_enumerators/enumerators.dart';
+import 'package:enumerators/enumerators.dart';
 
 /* public API */
 

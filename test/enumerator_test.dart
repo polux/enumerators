@@ -3,7 +3,7 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-import 'package:dart_enumerators/enumerators.dart';
+import 'package:enumerators/enumerators.dart';
 import 'package:unittest/unittest.dart';
 import 'src/common.dart';
 
