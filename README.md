@@ -1,4 +1,4 @@
-= Random Access Enumerations of Dart Datatypes =
+# Random Access Enumerations of Dart Datatypes
 
 A library which allows for randomized or exhaustive testing of Dart functions
 by providing random access enumerations of Dart datatypes. It is heavily
@@ -7,14 +7,14 @@ inspired by Jonas Duregård's
 
 Put simply, it allows to test things like `reverse(reverse(list)) == list` by
 picking, say, 100 random lists of booleans for `list`
-((quickcheck)[http://hackage.haskell.org/package/QuickCheck] style), or by
+([quickcheck](http://hackage.haskell.org/package/QuickCheck) style), or by
 enumerating all the lists of booleans up to a certain depth
-((smallcheck)[http://hackage.haskell.org/package/smallcheck] style). It is
+([smallcheck](http://hackage.haskell.org/package/smallcheck) style). It is
 however up to the user to provide the glorified while loops that constitute the
 "quickcheck" and "smallcheck" functions of these libraries. The
-(propcheck)[http://code.google.com/p/dart-check/] library just does that.
+[propcheck](http://code.google.com/p/dart-check/) library just does that.
 
-== Simple Usage ==
+## Simple Usage
 
 The `combinators.dart` library provides a predefined set of combinators for the
 most common use cases:
@@ -24,7 +24,8 @@ import 'package:enumerators/combinators.dart' as 'c';
 
 main() {
   // c.strings is an enumeration: a infinite list of finite parts
-  // part 0 contains the strings of size 0, part 1 the strings of size 1, etc.
+  // part 0 contains the strings of size 0, part 1 the strings of size 1,
+  // etc.
   final strings20 = c.strings.parts[20];
 
   // we have fast access to the cardinal of a part
@@ -40,7 +41,8 @@ main() {
   // we can also print a part as a whole, but it might be huge
   print("the ints of size 200: ${c.ints.parts[200]}");
 
-  // setsOf is a combinator: it takes an Enumeration and returns an Enumeration
+  // setsOf is a combinator: it takes an Enumeration and returns an
+  // Enumeration
   print("a set of strings: ${c.setsOf(c.strings)[123456789]}");
 
   // we can arbitrarily nest combinators
@@ -59,7 +61,7 @@ a set of strings: {e, , n, m, v, ab, u, ac, f, t}
 a map from nats to lists of ints: {1: [], 4: [0, 0, 0, -1, 1, 0], 5: [], 6: [-1]}
 ```
 
-== Advanced Usage ==
+## Advanced Usage
 
 The `enumerators.dart` library provides lower-level primitives for building
 enumerations of user-defined datatypes.
@@ -96,9 +98,10 @@ main() {
   consEnum(e) => singleton(cons).apply(boolEnum).apply(e);
   final listEnum = fix((e) => (nilEnum + consEnum(e)).pay());
 
-  // listEnum is made of finite sets of lists of booleans (parts), the first
-  // part contains exactly the lists made of 1 constructor (i.e. nil), the
-  // second part the lists made of 2 constructors (there aren't any), etc.
+  // listEnum is made of finite sets of lists of booleans (parts), the
+  // first part contains exactly the lists made of 1 constructor
+  // (i.e. nil), the second part the lists made of 2 constructors (there
+  // aren't any), etc.
   var counter = 0;
   listEnum.parts.take(10).forEach((f) {
     print("all the lists made of $counter constructors: $f");
@@ -117,7 +120,8 @@ main() {
     counter++;
   });
 
-  // we can access the nth list of the enumeration very fast, even for big ns
+  // we can access the nth list of the enumeration very fast, even for
+  // big ns
   print("member 10^10 of the enumeration: ${listEnum[Math.pow(10,10)]}");
 }
 ```
