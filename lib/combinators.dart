@@ -115,7 +115,7 @@ Enumeration<int> _mkInts() {
 
 Enumeration<String> _mkStrings() {
   final cs = "abcdefghijklmnopqrstuvwxyz".splitChars();
-  final chars = _foldLeft(cs.map(singleton), empty(), (e1, e2) => e1 + e2);
+  final chars = _foldLeft(cs.mappedBy(singleton), empty(), (e1, e2) => e1 + e2);
   final charsLists = listsOf(chars);
   return charsLists.map(Strings.concatAll);
 }
