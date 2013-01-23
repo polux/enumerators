@@ -56,17 +56,17 @@ void testApply() {
 }
 
 void testFix() {
-  final e = fix((e) => singleton('foo') + e.pay());
+  final en = fix((e) => singleton('foo') + e.pay());
   final expected = [];
   for (int i = 0; i < 100; i++) {
     expected.add(['foo']);
   }
-  checkPrefixEquals(e, expected);
+  checkPrefixEquals(en, expected);
 }
 
 void testKnot() {
-  final e = fix((e) => singleton('foo') + e.pay());
-  expect(e.parts.tail, same(e.parts));
+  final en = fix((e) => singleton('foo') + e.pay());
+  expect(en.parts.tail, same(en.parts));
 }
 
 void main() {
