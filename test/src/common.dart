@@ -11,7 +11,7 @@ import 'package:unittest/unittest.dart';
 Enumeration listToEnum(List<List> list) {
   return new Enumeration(
       new Thunk(
-          () => _listToLazyList(list.mappedBy(_listToFinite))));
+          () => _listToLazyList(list.map(_listToFinite).toList())));
 }
 
 Finite _listToFinite(List list) {
@@ -35,7 +35,7 @@ void checkPrefixEquals(Enumeration enum, List<List> prefix) {
   final enumPrefix = enum.parts
                          .take(prefix.length)
                          .toList()
-                         .mappedBy(_finiteToList)
+                         .map(_finiteToList)
                          .toList();
   expect(enumPrefix, equals(prefix));
 }
@@ -43,7 +43,7 @@ void checkPrefixEquals(Enumeration enum, List<List> prefix) {
 void checkEquals(Enumeration enum, List<List> list) {
   final enumPrefix = enum.parts
                          .toList()
-                         .mappedBy(_finiteToList)
+                         .map(_finiteToList)
                          .toList();
   expect(enumPrefix, equals(list));
 }

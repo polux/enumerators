@@ -114,7 +114,10 @@ class _Cons<A> extends LazyList<A> {
   LazyList _lazyPlus(LazyList gen()) =>
     new LazyList.cons(head, () => tail._lazyPlus(gen));
 
-  LazyList concat() => this.head._lazyPlus(() => this.tail.concat());
+  LazyList concat() {
+    assert(this.head is LazyList);
+    return this.head._lazyPlus(() => this.tail.concat());
+  }
 
   LazyList map(f(A x)) =>
     new LazyList.cons(f(head), () => tail.map(f));
