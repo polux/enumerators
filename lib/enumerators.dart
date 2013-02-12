@@ -106,7 +106,7 @@ abstract class Finite<A> {
 
   String toString() {
     final strings = toLazyList().map((f) => f.toString()).toList();
-    return "{${Strings.join(strings, ", ")}}";
+    return "{${strings.join(", ")}}";
   }
 
   LazyList<A> toLazyList() {

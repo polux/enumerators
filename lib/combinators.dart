@@ -106,8 +106,8 @@ Enumeration<int> _mkInts() {
 }
 
 Enumeration<String> _mkStrings() {
-  final cs = "abcdefghijklmnopqrstuvwxyz".splitChars();
+  final cs = "abcdefghijklmnopqrstuvwxyz".split('');
   final chars = cs.map(singleton).reduce(empty(), (e1, e2) => e1 + e2);
   final charsLists = listsOf(chars);
-  return charsLists.map(Strings.concatAll);
+  return charsLists.map((cs) => cs.join());
 }
