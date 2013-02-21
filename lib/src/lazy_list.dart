@@ -77,14 +77,20 @@ abstract class LazyList<A> {
 class _Empty<A> extends LazyList<A> {
   _Empty() : super._();
   bool isEmpty() => true;
-  get head => throw new UnsupportedError("empty lazy lists don't have heads");
-  get tail => throw new UnsupportedError("empty lazy lists don't have tails");
+  get head {
+    throw new UnsupportedError("empty lazy lists don't have heads");
+  }
+  get tail {
+    throw new UnsupportedError("empty lazy lists don't have tails");
+  }
   LazyList take(int length) => this;
   LazyList operator +(LazyList s) => s;
   LazyList concat() => this;
   LazyList map(f(A x)) => this;
   LazyList<LazyList> tails() => new LazyList.singleton(new LazyList.empty());
-  operator[](int index) => throw new RangeError(index);
+  operator[](int index) {
+    throw new RangeError(index);
+  }
   LazyList _lazyPlus(LazyList gen()) => gen();
 }
 
@@ -115,8 +121,12 @@ class _Cons<A> extends LazyList<A> {
     new LazyList.cons(head, () => tail._lazyPlus(gen));
 
   LazyList concat() {
-    assert(this.head is LazyList);
-    return this.head._lazyPlus(() => this.tail.concat());
+    // TODO(polux): Get rid of this little dance to convice the analyzer that
+    // head is a LazyList when it doesn't complain anymore about the sanest
+    // LazyList headAsList = this.head.
+    final untypedHead = this.head;
+    LazyList headAsList = untypedHead;
+    return headAsList._lazyPlus(() => this.tail.concat());
   }
 
   LazyList map(f(A x)) =>
