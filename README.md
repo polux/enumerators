@@ -1,4 +1,4 @@
-# Random Access Enumerations of Dart Datatypes
+# Random Access Enumerations
 
 A library which allows for randomized or exhaustive testing of Dart functions
 by providing random access enumerations of Dart datatypes. It is heavily
