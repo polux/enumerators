@@ -29,7 +29,8 @@ void testInts() {
 }
 
 void testStrings() {
-  final chars = "abcdefghijklmnopqrstuvwxyz".splitChars();
+  final chars = const ["a","b","c","d","e","f","g","h","i","j","k","l","m",
+                       "n","o","p","q","r","s","t","u","v","w","x","y","z"];
   final expected1 = chars;
   final expected2 = [];
   for (final c1 in chars) {
