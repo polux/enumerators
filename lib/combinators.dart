@@ -108,7 +108,7 @@ Enumeration<int> _mkInts() {
 Enumeration<String> _mkStrings() {
   final cs = const ["a","b","c","d","e","f","g","h","i","j","k","l","m",
                     "n","o","p","q","r","s","t","u","v","w","x","y","z"];
-  final chars = cs.map(singleton).reduce(empty(), (e1, e2) => e1 + e2);
+  final chars = cs.map(singleton).fold(empty(), (e1, e2) => e1 + e2);
   final charsLists = listsOf(chars);
   return charsLists.map((cs) => cs.join());
 }
