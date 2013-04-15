@@ -1,1 +1,1 @@
-{"location":"0","name":"dart:","dependencies":[],"description":"Dart System Libraries","libraries":[{"name":"file:///tmp/tmp.NaWMR39pyU/dart-enumerators/lib/combinators.dart","refId":"combinators"},{"name":"package:enumerators/enumerators.dart","refId":"enumerators"}],"revision":"0"}
+{"location":"0","name":"dart:","dependencies":[],"description":"Dart System Libraries","libraries":[{"refId":"combinators"},{"name":"package:enumerators/enumerators.dart","refId":"enumerators"},{"name":"package:rationals/rationals.dart","refId":"rationals"}],"revision":"0"}

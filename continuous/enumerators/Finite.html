@@ -5,7 +5,7 @@
         <title>Finite&lt;A&gt; abstract class / enumerators Library / Dart Documentation</title>
         <link rel="stylesheet" type="text/css"
             href="../styles.css">
-        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
         <link rel="shortcut icon" href="../favicon.ico">
         
         </head>
@@ -75,29 +75,29 @@ abstract class Finite&lt;A&gt; {
          throw new RangeError(index);
        } else if (fin is _FSingleton) {
          if (i == 0)
-           stack.addLast(fin.value);
+           stack.add(fin.value);
          else
            throw new RangeError(index);
        } else if (fin is _FSum) {
          if (i &lt; fin.fin1.card)
-           instructions.addLast(new _IEval(fin.fin1, i));
+           instructions.add(new _IEval(fin.fin1, i));
          else
-           instructions.addLast(new _IEval(fin.fin2, i - fin.fin1.card));
+           instructions.add(new _IEval(fin.fin2, i - fin.fin1.card));
        } else if (fin is _FProd) {
-         instructions.addLast(new _IProd());
-         instructions.addLast(new _IEval(fin.fin1, i ~/ fin.fin2.card));
-         instructions.addLast(new _IEval(fin.fin2, i % fin.fin2.card));
+         instructions.add(new _IProd());
+         instructions.add(new _IEval(fin.fin1, i ~/ fin.fin2.card));
+         instructions.add(new _IEval(fin.fin2, i % fin.fin2.card));
        } else if (fin is _FMap) {
-         instructions.addLast(new _IMap(fin.f));
-         instructions.addLast(new _IEval(fin.mapped, i));
+         instructions.add(new _IMap(fin.f));
+         instructions.add(new _IEval(fin.mapped, i));
        }
      } else if (instr is _IProd) {
        final v1 = stack.removeLast();
        final v2 = stack.removeLast();
-       stack.addLast(new Pair(v1, v2));
+       stack.add(new Pair(v1, v2));
      } else if (instr is _IMap) {
        final v = stack.removeLast();
-       stack.addLast(instr.f(v));
+       stack.add(instr.f(v));
      }
    }
    return stack[0];
@@ -261,7 +261,7 @@ String toString() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-02-27 23:07:15.624</div>
+          <div>This page was generated at 2013-04-15 02:39:06.833</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
