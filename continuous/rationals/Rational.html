@@ -1,0 +1,449 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Rational class / rationals Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="rationals" data-type="Rational">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../rationals.html">rationals</a> &rsaquo; <a href="../rationals/Rational.html">Rational</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Rational</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class Rational {
+ final int numerator;
+ final int denominator;
+
+ static _gcd(int n, int m) {
+   while (m != 0) {
+     int tmp = m;
+     m = n % m;
+     n = tmp;
+   }
+   return n;
+ }
+
+ Rational._normalized(this.numerator, this.denominator) {
+   assert(denominator &gt; 0);
+   assert(_gcd(numerator.abs(), denominator.abs()) == 1);
+ }
+
+ factory Rational(int numerator, [int denominator = 1]) {
+   if (denominator == 0) throw new ArgumentError('division by zero');
+   if (numerator == 0) return new Rational._normalized(0, 1);
+   if (denominator &lt; 0) {
+     numerator = -numerator;
+     denominator = -denominator;
+   }
+   final aNumerator = numerator.abs();
+   final aDenominator = denominator.abs();
+   final gcd = _gcd(aNumerator, aDenominator);
+   return (gcd == 1)
+       ? new Rational._normalized(numerator, denominator)
+       : new Rational._normalized(numerator ~/ gcd, denominator ~/ gcd);
+ }
+
+ String toString() {
+   if (numerator == 0) return '0';
+   if (denominator == 1) return numerator.toString();
+   else return '$numerator/$denominator';
+ }
+
+ int get hashCode =&gt; numerator + 31 * denominator;
+
+ bool operator ==(other) {
+   if (other is Rational) {
+     return numerator == other.numerator &amp;&amp; denominator == other.denominator;
+   } else if (other is int) {
+     return numerator == other &amp;&amp; denominator == 1;
+   } else if (other is double) {
+     return toDouble() == other;
+   } else {
+     throw new ArgumentError("expecting int, double or Rational");
+   }
+ }
+
+ bool operator &lt;(other) {
+   if (other is Rational) {
+     return numerator * other.denominator &lt; other.numerator * denominator;
+   } else if (other is int) {
+     return numerator &lt; other * denominator;
+   } else if (other is double) {
+     return toDouble() &lt; other;
+   } else {
+     throw new ArgumentError("expecting int, double or Rational");
+   }
+ }
+
+ bool operator &gt;(other) {
+   if (other is Rational) {
+     return numerator * other.denominator &gt; other.numerator * denominator;
+   } else if (other is int) {
+     return numerator &gt; other * denominator;
+   } else if (other is double) {
+     return (numerator / denominator) &gt; other;
+   } else {
+     throw new ArgumentError("expecting int, double or Rational");
+   }
+ }
+
+ bool operator &lt;=(other) =&gt; this &lt; other || this == other;
+
+ bool operator &gt;=(other) =&gt; this &gt; other || this == other;
+
+ Rational operator -() {
+   return new Rational._normalized(-numerator, denominator);
+ }
+
+ Rational operator +(other) {
+   if (other is Rational) {
+     return new Rational(numerator * other.denominator
+                             + other.numerator * denominator,
+                         denominator * other.denominator);
+   } else if (other is int) {
+     return new Rational(numerator + other * denominator, denominator);
+   } else {
+     throw new ArgumentError("expecting Rational or int");
+   }
+ }
+
+ Rational operator -(other) {
+   return this + (-other);
+ }
+
+ Rational operator *(other) {
+   if (other is Rational) {
+     return new Rational(numerator * other.numerator,
+                         denominator * other.denominator);
+   } else if (other is int) {
+     return new Rational(numerator * other, denominator);
+   } else {
+     throw new ArgumentError("expecting Rational or int");
+   }
+ }
+
+ Rational operator /(other) {
+   if (other is Rational) {
+     return new Rational(numerator * other.denominator,
+                         denominator * other.numerator);
+   } else if (other is int) {
+     return new Rational(numerator, denominator * other);
+   } else {
+     throw new ArgumentError("expecting Rational or int");
+   }
+ }
+
+ double toDouble() =&gt; numerator / denominator;
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="Rational">
+<button class="show-code">Code</button>
+factory <strong>Rational</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> numerator, [<a href="http://api.dartlang.org/dart_core/int.html">int</a> denominator = 1]) <a class="anchor-link" href="#Rational"
+              title="Permalink to Rational.Rational">#</a></h4>
+<div class="doc">
+<pre class="source">
+factory Rational(int numerator, [int denominator = 1]) {
+ if (denominator == 0) throw new ArgumentError('division by zero');
+ if (numerator == 0) return new Rational._normalized(0, 1);
+ if (denominator &lt; 0) {
+   numerator = -numerator;
+   denominator = -denominator;
+ }
+ final aNumerator = numerator.abs();
+ final aDenominator = denominator.abs();
+ final gcd = _gcd(aNumerator, aDenominator);
+ return (gcd == 1)
+     ? new Rational._normalized(numerator, denominator)
+     : new Rational._normalized(numerator ~/ gcd, denominator ~/ gcd);
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="denominator">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>denominator</strong> <a class="anchor-link"
+            href="#denominator"
+            title="Permalink to Rational.denominator">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final int denominator
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="hashCode">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>hashCode</strong> <a class="anchor-link"
+            href="#hashCode"
+            title="Permalink to Rational.hashCode">#</a>
+        </h4>
+        <div class="doc">
+<div class="inherited">
+<p>Get a hash code for this object.</p>
+<p>All objects have hash codes. Hash codes are guaranteed to be the
+same for objects that are equal when compared using the equality
+operator <code>==</code>. Other than that there are no guarantees about
+the hash codes. They will not be consistent between runs and
+there are no distribution guarantees.</p>
+<p>If a subclass overrides <a class="crossref" href="../rationals/Rational.html#hashCode">hashCode</a> it should override the
+equality operator as well to maintain consistency.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
+<pre class="source">
+int get hashCode =&gt; numerator + 31 * denominator;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="numerator">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>numerator</strong> <a class="anchor-link"
+            href="#numerator"
+            title="Permalink to Rational.numerator">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final int numerator
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Operators</h3>
+<div class="method"><h4 id="+">
+<button class="show-code">Code</button>
+<a href="../rationals/Rational.html">Rational</a> <strong>operator +</strong>(other) <a class="anchor-link" href="#+"
+              title="Permalink to Rational.operator +">#</a></h4>
+<div class="doc">
+<pre class="source">
+Rational operator +(other) {
+ if (other is Rational) {
+   return new Rational(numerator * other.denominator
+                           + other.numerator * denominator,
+                       denominator * other.denominator);
+ } else if (other is int) {
+   return new Rational(numerator + other * denominator, denominator);
+ } else {
+   throw new ArgumentError("expecting Rational or int");
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="unary-">
+<button class="show-code">Code</button>
+<a href="../rationals/Rational.html">Rational</a> <strong>operator -</strong>() <a class="anchor-link" href="#unary-"
+              title="Permalink to Rational.operator -">#</a></h4>
+<div class="doc">
+<pre class="source">
+Rational operator -() {
+ return new Rational._normalized(-numerator, denominator);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="-">
+<button class="show-code">Code</button>
+<a href="../rationals/Rational.html">Rational</a> <strong>operator -</strong>(other) <a class="anchor-link" href="#-"
+              title="Permalink to Rational.operator -">#</a></h4>
+<div class="doc">
+<pre class="source">
+Rational operator -(other) {
+ return this + (-other);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="*">
+<button class="show-code">Code</button>
+<a href="../rationals/Rational.html">Rational</a> <strong>operator *</strong>(other) <a class="anchor-link" href="#*"
+              title="Permalink to Rational.operator *">#</a></h4>
+<div class="doc">
+<pre class="source">
+Rational operator *(other) {
+ if (other is Rational) {
+   return new Rational(numerator * other.numerator,
+                       denominator * other.denominator);
+ } else if (other is int) {
+   return new Rational(numerator * other, denominator);
+ } else {
+   throw new ArgumentError("expecting Rational or int");
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="/">
+<button class="show-code">Code</button>
+<a href="../rationals/Rational.html">Rational</a> <strong>operator /</strong>(other) <a class="anchor-link" href="#/"
+              title="Permalink to Rational.operator /">#</a></h4>
+<div class="doc">
+<pre class="source">
+Rational operator /(other) {
+ if (other is Rational) {
+   return new Rational(numerator * other.denominator,
+                       denominator * other.numerator);
+ } else if (other is int) {
+   return new Rational(numerator, denominator * other);
+ } else {
+   throw new ArgumentError("expecting Rational or int");
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="<">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>operator <</strong>(other) <a class="anchor-link" href="#<"
+              title="Permalink to Rational.operator <">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool operator &lt;(other) {
+ if (other is Rational) {
+   return numerator * other.denominator &lt; other.numerator * denominator;
+ } else if (other is int) {
+   return numerator &lt; other * denominator;
+ } else if (other is double) {
+   return toDouble() &lt; other;
+ } else {
+   throw new ArgumentError("expecting int, double or Rational");
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="<=">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>operator <=</strong>(other) <a class="anchor-link" href="#<="
+              title="Permalink to Rational.operator <=">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool operator &lt;=(other) =&gt; this &lt; other || this == other;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id=">">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>operator ></strong>(other) <a class="anchor-link" href="#>"
+              title="Permalink to Rational.operator >">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool operator &gt;(other) {
+ if (other is Rational) {
+   return numerator * other.denominator &gt; other.numerator * denominator;
+ } else if (other is int) {
+   return numerator &gt; other * denominator;
+ } else if (other is double) {
+   return (numerator / denominator) &gt; other;
+ } else {
+   throw new ArgumentError("expecting int, double or Rational");
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id=">=">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>operator >=</strong>(other) <a class="anchor-link" href="#>="
+              title="Permalink to Rational.operator >=">#</a></h4>
+<div class="doc">
+<pre class="source">
+bool operator &gt;=(other) =&gt; this &gt; other || this == other;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="==">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> <strong>operator ==</strong>(other) <a class="anchor-link" href="#=="
+              title="Permalink to Rational.operator ==">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>The equality operator.</p>
+<p>The default behavior for all <code>Object</code>s is to return true if and
+only if <code>this</code> and 
+<span class="param">other</span> are the same object.</p>
+<p>If a subclass overrides the equality operator it should override
+the <a class="crossref" href="../rationals/Rational.html#hashCode">hashCode</a> method as well to maintain consistency.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
+<pre class="source">
+bool operator ==(other) {
+ if (other is Rational) {
+   return numerator == other.numerator &amp;&amp; denominator == other.denominator;
+ } else if (other is int) {
+   return numerator == other &amp;&amp; denominator == 1;
+ } else if (other is double) {
+   return toDouble() == other;
+ } else {
+   throw new ArgumentError("expecting int, double or Rational");
+ }
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="toDouble">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/double.html">double</a> <strong>toDouble</strong>() <a class="anchor-link" href="#toDouble"
+              title="Permalink to Rational.toDouble">#</a></h4>
+<div class="doc">
+<pre class="source">
+double toDouble() =&gt; numerator / denominator;
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="toString">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/String.html">String</a> <strong>toString</strong>() <a class="anchor-link" href="#toString"
+              title="Permalink to Rational.toString">#</a></h4>
+<div class="doc">
+<div class="inherited">
+<p>Returns a string representation of this object.</p>
+<div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
+<pre class="source">
+String toString() {
+ if (numerator == 0) return '0';
+ if (denominator == 1) return numerator.toString();
+ else return '$numerator/$denominator';
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-04-15 02:39:06.846</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        
