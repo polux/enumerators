@@ -11,12 +11,12 @@ void testCardinalOfSum() {
   final a = new Finite.singleton('a');
   final b = new Finite.singleton('b');
   final c = new Finite.singleton('b');
-  expect((empty + empty).card, equals(0));
-  expect((empty + a).card, equals(1));
-  expect((a + empty).card, equals(1));
-  expect((a + b).card, equals(2));
-  expect(((a + b) + c).card, equals(3));
-  expect((a + (b + c)).card, equals(3));
+  expect((empty + empty).length, equals(0));
+  expect((empty + a).length, equals(1));
+  expect((a + empty).length, equals(1));
+  expect((a + b).length, equals(2));
+  expect(((a + b) + c).length, equals(3));
+  expect((a + (b + c)).length, equals(3));
 }
 
 void testCardinalOfProd() {
@@ -24,15 +24,15 @@ void testCardinalOfProd() {
   final a = new Finite.singleton('a');
   final b = new Finite.singleton('b');
   final ab = a + b;
-  expect((empty * empty).card, equals(0));
-  expect((empty * a).card, equals(0));
-  expect((a * empty).card, equals(0));
-  expect((a * b).card, equals(1));
-  expect((ab * a).card, equals(2));
-  expect((a * ab).card, equals(2));
-  expect((ab * ab).card, equals(4));
-  expect(((ab * ab) * ab).card, equals(8));
-  expect((ab * (ab * ab)).card, equals(8));
+  expect((empty * empty).length, equals(0));
+  expect((empty * a).length, equals(0));
+  expect((a * empty).length, equals(0));
+  expect((a * b).length, equals(1));
+  expect((ab * a).length, equals(2));
+  expect((a * ab).length, equals(2));
+  expect((ab * ab).length, equals(4));
+  expect(((ab * ab) * ab).length, equals(8));
+  expect((ab * (ab * ab)).length, equals(8));
 }
 
 void testCardinalOfMap() {
@@ -40,7 +40,7 @@ void testCardinalOfMap() {
   final a = new Finite.singleton(1);
   final b = new Finite.singleton(2);
   void checkUnchanged(Finite fin, Function f) {
-    expect(fin.map(f).card, equals(fin.card));
+    expect(fin.map(f).length, equals(fin.length));
   }
   checkUnchanged(empty, (int n) => n + 1);
   checkUnchanged(a, (int n) => n + 1);
@@ -54,12 +54,12 @@ void testCardinalOfApply() {
   final fun2 = new Finite.singleton((int n) => n + 2);
   final one = new Finite.singleton(1);
   final two = new Finite.singleton(2);
-  expect(empty.apply(one).card, equals(0));
-  expect(empty.apply(one + two).card, equals(0));
-  expect(fun1.apply(one).card, equals(1));
-  expect(fun1.apply(one +  two).card, equals(2));
-  expect((fun1 + fun2).apply(one).card, equals(2));
-  expect((fun1 + fun2).apply(one + two).card, equals(4));
+  expect(empty.apply(one).length, equals(0));
+  expect(empty.apply(one + two).length, equals(0));
+  expect(fun1.apply(one).length, equals(1));
+  expect(fun1.apply(one +  two).length, equals(2));
+  expect((fun1 + fun2).apply(one).length, equals(2));
+  expect((fun1 + fun2).apply(one + two).length, equals(4));
 }
 
 void testIndexEmpty() {
@@ -142,18 +142,60 @@ void testIndexApply() {
   }
 }
 
+void testIterator1() {
+  expect(new Finite.empty().toList(), equals([]));
+}
+
+void testIterator2() {
+  final fin = new Finite.singleton(1)
+            + new Finite.singleton(2)
+            + new Finite.singleton(3);
+  expect(fin.toList(), equals([1, 2, 3]));
+}
+
+void testIsEmpty() {
+  final _42 = new Finite.singleton(42);
+  expect(new Finite.empty().isEmpty, isTrue);
+  expect(_42.isEmpty, isFalse);
+  expect((_42 + _42).isEmpty, isFalse);
+  expect((_42 * _42).isEmpty, isFalse);
+  expect(_42.map((x) => x + 1).isEmpty, isFalse);
+}
+
+void testFirst() {
+  final _42 = new Finite.singleton(42);
+  final _43 = new Finite.singleton(43);
+  expect(() => new Finite.empty().first,
+         throwsA(new isInstanceOf<StateError>()));
+  expect(_42.first, equals(42));
+  expect((_42 + _43).first, equals(42));
+  expect((_42 * _43).first, equals(new Pair(42, 43)));
+  expect(_42.map((x) => x + 5).first, equals(47));
+}
+
+void testLast() {
+  final _42 = new Finite.singleton(42);
+  final _43 = new Finite.singleton(43);
+  expect(() => new Finite.empty().last,
+         throwsA(new isInstanceOf<StateError>()));
+  expect(_42.last, equals(42));
+  expect((_42 + _43).last, equals(43));
+  expect((_42 * _43).last, equals(new Pair(42, 43)));
+  expect(_42.map((x) => x + 5).last, equals(47));
+}
+
 void main() {
-  test('card(empty) == 0',
-       () => expect(new Finite.empty().card, equals(0)));
-  test('card(singleton(foo)) == 1',
-       () => expect(new Finite.singleton('foo').card, equals(1)));
-  test('card(a + b) = card(a) + card(b)',
+  test('length(empty) == 0',
+       () => expect(new Finite.empty().length, equals(0)));
+  test('length(singleton(foo)) == 1',
+       () => expect(new Finite.singleton('foo').length, equals(1)));
+  test('length(a + b) = length(a) + length(b)',
        testCardinalOfSum);
-  test('card(a * b) = card(a) * card(b)',
+  test('length(a * b) = length(a) * length(b)',
        testCardinalOfProd);
-  test('card(a.map(f)) == card(a)',
+  test('length(a.map(f)) == length(a)',
        testCardinalOfMap);
-  test('card(a.apply(b)) == card(a) * card(b)',
+  test('length(a.apply(b)) == length(a) * length(b)',
        testCardinalOfApply);
   test('empty[i] throws exception',
        testIndexEmpty);
@@ -167,4 +209,14 @@ void main() {
        testIndexMap);
   test('a.apply(b)[i] behaves as expected',
        testIndexApply);
+  test('{}.toList() == []',
+       testIterator1);
+  test('{1,2,3}.toList() == [1,2,3]',
+       testIterator2);
+  test('isEmpty behaves as expected',
+       testIsEmpty);
+  test('first behaves as expected',
+       testFirst);
+  test('last behaves as expected',
+       testFirst);
 }

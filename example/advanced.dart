@@ -108,7 +108,7 @@ treesOfNaturals() {
   });
 
   // computation of a part's cardinality is fast
-  final cardOf50 = treeEnum.parts[50].card;
+  final cardOf50 = treeEnum.parts[50].length;
   print("there are $cardOf50 trees of size 50");
   // the first tree of the 50th set is Leaf(48), which is boring, but at the
   // middle of the set, we can get a pretty deep one

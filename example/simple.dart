@@ -12,7 +12,7 @@ main() {
   final strings20 = c.strings.parts[20];
 
   // we have fast access to the cardinal of a part
-  final n = (strings20.card * 0.123).toInt();
+  final n = (strings20.length * 0.123).toInt();
 
   // as well as fast access to the nth element of a part
   print("the ${n}th string of size 20: ${strings20[n]}");

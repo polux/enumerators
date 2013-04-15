@@ -34,9 +34,7 @@ class _IEval extends _Instruction {
   toString() => "eval($fin, $i)";
 }
 
-abstract class Finite<A> {
-  get card;
-
+abstract class Finite<A> extends Iterable<A> {
   Finite();
   factory Finite.empty() => new _FEmpty();
   factory Finite.singleton(A x) => new _FSingleton(x);
@@ -80,14 +78,14 @@ abstract class Finite<A> {
           else
             throw new RangeError(index);
         } else if (fin is _FSum) {
-          if (i < fin.fin1.card)
+          if (i < fin.fin1.length)
             instructions.add(new _IEval(fin.fin1, i));
           else
-            instructions.add(new _IEval(fin.fin2, i - fin.fin1.card));
+            instructions.add(new _IEval(fin.fin2, i - fin.fin1.length));
         } else if (fin is _FProd) {
           instructions.add(new _IProd());
-          instructions.add(new _IEval(fin.fin1, i ~/ fin.fin2.card));
-          instructions.add(new _IEval(fin.fin2, i % fin.fin2.card));
+          instructions.add(new _IEval(fin.fin1, i ~/ fin.fin2.length));
+          instructions.add(new _IEval(fin.fin2, i % fin.fin2.length));
         } else if (fin is _FMap) {
           instructions.add(new _IMap(fin.f));
           instructions.add(new _IEval(fin.mapped, i));
@@ -109,53 +107,98 @@ abstract class Finite<A> {
     return "{${strings.join(", ")}}";
   }
 
+  Iterator<A> get iterator => new _FiniteIterator<A>(this);
+
   LazyList<A> toLazyList() {
-    aux(i) => (i == this.card)
+    aux(i) => (i == this.length)
         ? new LazyList.empty()
         : new LazyList.cons(this[i], () => aux(i+1));
     return aux(0);
   }
+
+  // optimized Iterable methods
+
+  bool get isEmpty => length == 0;
+
+  A elementAt(int index) => this[index];
+
+  A get first {
+    if (isEmpty) {
+      throw new StateError('Cannot access first element of an empty set.');
+    }
+    return this[0];
+  }
+
+  A get last {
+    if (isEmpty) {
+      throw new StateError('Cannot access last element of an empty set.');
+    }
+    return this[length - 1];
+  }
+}
+
+class _FiniteIterator<A> extends Iterator<A> {
+  final Finite<A> finite;
+  int index = -1;
+  A current = null;
+
+  _FiniteIterator(this.finite);
+
+  bool moveNext() {
+    if (index == finite.length) return false;
+
+    index++;
+    if (index == finite.length) {
+      current = null;
+      return false;
+    } else {
+      current = finite[index];
+      return true;
+    }
+  }
 }
 
 class _FEmpty<A> extends Finite<A> {
-  final int card = 0;
+  final int length = 0;
+  final bool isEmpty = true;
   _FEmpty();
 }
 
 class _FSingleton<A> extends Finite<A> {
-  final int card = 1;
+  final int length = 1;
+  final bool isEmpty = false;
   final A value;
   _FSingleton(this.value);
 }
 
 class _FSum<A> extends Finite<A> {
-  final int card;
+  final int length;
   final Finite<A> fin1;
   final Finite<A> fin2;
   _FSum(fin1, fin2)
       : this.fin1 = fin1
       , this.fin2 = fin2
-      , card = fin1.card + fin2.card;
+      , length = fin1.length + fin2.length;
 }
 
 class _FProd<A> extends Finite<A> {
-  final int card;
+  final int length;
   final Finite<A> fin1;
   final Finite<A> fin2;
   _FProd(fin1, fin2)
       : this.fin1 = fin1
       , this.fin2 = fin2
-      , card = fin1.card * fin2.card;
+      , length = fin1.length * fin2.length;
 }
 
 class _FMap<A,B> extends Finite<B> {
-  final int card;
+  final int length;
   final Function f;
   final Finite<A> mapped;
   _FMap(B f(A x), Finite<A> mapped)
       : this.f = f
       , this.mapped = mapped
-      , card = mapped.card;
+      , length = mapped.length;
 }
 
 class Thunk<A> {
@@ -197,8 +240,8 @@ class Enumeration<A> {
     var it = i;
     while (true) {
       if (ps.isEmpty()) throw new RangeError(i);
-      if (it < ps.head.card) return ps.head[it];
-      it = it - ps.head.card;
+      if (it < ps.head.length) return ps.head[it];
+      it = it - ps.head.length;
       ps = ps.tail;
     }
   }
