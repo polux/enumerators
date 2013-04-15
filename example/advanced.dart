@@ -65,10 +65,10 @@ listsOfBools() {
   // part contains exactly the lists made of 1 constructor (i.e. nil), the
   // second part the lists made of 2 constructors (there aren't any), etc.
   var counter = 0;
-  listEnum.parts.take(10).forEach((f) {
+  for (final f in listEnum.parts.take(10)) {
     print("all the lists made of $counter constructors: $f");
     counter++;
-  });
+  }
 
   // we can access big parts pretty fast
   final trues = listEnum.parts[81][0];
@@ -77,10 +77,10 @@ listsOfBools() {
   // toLazyList() iterates over the enumeration as a whole, seen as a
   // concatenation of its parts
   counter = 0;
-  listEnum.take(10).forEach((l) {
+  for (final l in listEnum.take(10)) {
     print("list of booleans #$counter: $l");
     counter++;
-  });
+  }
 
   // we can access the nth list of the enumeration very fast, even for big ns
   print("member 10^500 of the enumeration: ${listEnum[pow(10,500)]}");
@@ -102,10 +102,10 @@ treesOfNaturals() {
 
   // remember that a natural n is "of size" n
   var counter = 0;
-  treeEnum.parts.take(10).forEach((f) {
+  for (final f in treeEnum.parts.take(10)) {
     print("all the trees of size $counter: $f");
     counter++;
-  });
+  }
 
   // computation of a part's cardinality is fast
   final cardOf50 = treeEnum.parts[50].length;
