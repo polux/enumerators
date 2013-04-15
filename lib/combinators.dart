@@ -6,6 +6,7 @@
 library combinators;
 
 import 'package:enumerators/enumerators.dart';
+import 'package:rationals/rationals.dart';
 
 /* public API */
 
@@ -13,6 +14,8 @@ final Enumeration<bool> bools = _mkBools();
 final Enumeration<String> strings = _mkStrings();
 final Enumeration<int> nats = _mkNats();
 final Enumeration<int> ints = _mkInts();
+final Enumeration<Rational> positiveRationals = _mkPositiveRationals();
+final Enumeration<Rational> rationals = _mkRationals();
 
 Enumeration<List> listsOf(Enumeration enum) {
   final nils = singleton(_nil());
@@ -111,4 +114,23 @@ Enumeration<String> _mkStrings() {
   final chars = cs.map(singleton).fold(empty(), (e1, e2) => e1 + e2);
   final charsLists = listsOf(chars);
   return charsLists.map((cs) => cs.join());
+}
+
+Enumeration<Rational> _mkRationals() {
+  return singleton(new Rational(0))
+       + (positiveRationals + positiveRationals.map((r) => -r)).pay();
+}
+
+Rational _unGcd(List<bool> path) {
+  var numerator = 1;
+  var denominator = 1;
+  for (final b in path) {
+    if (b) denominator += numerator;
+    else numerator += denominator;
+  }
+  return new Rational(numerator, denominator);
+}
+
+Enumeration<Rational> _mkPositiveRationals() {
+  return listsOf(bools).map(_unGcd);
 }

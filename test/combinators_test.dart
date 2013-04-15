@@ -5,6 +5,7 @@
 
 import 'package:enumerators/enumerators.dart' show Enumeration;
 import 'package:enumerators/combinators.dart' as c;
+import 'package:rationals/rationals.dart';
 import 'package:unittest/unittest.dart';
 import 'src/common.dart';
 
@@ -74,6 +75,22 @@ void testListsOfNats() {
   checkPrefixEquals(enum, expected);
 }
 
+void testPositiveRationalsArePositive() {
+  c.positiveRationals
+   .toLazyList()
+   .take(1000)
+   .forEach((r) => expect(r, greaterThan(0)));
+}
+
+void testRationalsAreAllDifferent() {
+  final rats = new Set<Rational>();
+  c.positiveRationals
+   .toLazyList()
+   .take(1000)
+   .forEach(rats.add);
+  expect(rats.length, equals(1000));
+}
+
 main() {
   test('bools is { 0: [true, false] }', testBools);
   test('nats is { 0: [], 1: [0], 2: [1], ... }', testNats);
@@ -84,4 +101,6 @@ main() {
        testListsOfBools);
   test('listsOf(nats) is { 0: [[0]], 1: [[0, 0], [1]], .. }',
        testListsOfNats);
+  test('positive rationals are positive', testPositiveRationalsArePositive);
+  test('rationals are all different', testRationalsAreAllDifferent);
 }

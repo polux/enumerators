@@ -30,4 +30,6 @@ main() {
   // we can arbitrarily nest combinators
   print("a map from nats to lists of ints: "
         "${c.mapsOf(c.nats, c.listsOf(c.ints))[123456789]}");
+
+  print(c.rationals.toLazyList().map((r) => r >= 0).take(100));
 }
