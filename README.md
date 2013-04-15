@@ -29,7 +29,7 @@ main() {
   final strings20 = c.strings.parts[20];
 
   // we have fast access to the cardinal of a part
-  final n = (strings20.card * 0.123).toInt();
+  final n = (strings20.length * 0.123).toInt();
 
   // as well as fast access to the nth element of a part
   print("the ${n}th string of size 20: ${strings20[n]}");
@@ -103,22 +103,22 @@ main() {
   // (i.e. nil), the second part the lists made of 2 constructors (there
   // aren't any), etc.
   var counter = 0;
-  listEnum.parts.take(10).forEach((f) {
+  for (final f in listEnum.parts.take(10)) {
     print("all the lists made of $counter constructors: $f");
     counter++;
-  });
+  }
 
   // we can access big parts pretty fast
   final trues = listEnum.parts[81][0];
   print("the first list made of 40 elements (81 constructors): $trues");
 
-  // toLazyList() iterates over the enumeration as a whole, seen as a
-  // concatenation of its parts
+  // an enumeration can be iterated over as a whole,
+  // as a concatenation of its parts
   counter = 0;
-  listEnum.toLazyList().take(10).forEach((l) {
+  for (final l in listEnum.take(10)) {
     print("list of booleans #$counter: $l");
     counter++;
-  });
+  }
 
   // we can access the nth list of the enumeration very fast, even for
   // big ns

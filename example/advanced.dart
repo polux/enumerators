@@ -74,8 +74,8 @@ listsOfBools() {
   final trues = listEnum.parts[81][0];
   print("the first list made of 40 elements (81 constructors): $trues");
 
-  // toLazyList() iterates over the enumeration as a whole, seen as a
-  // concatenation of its parts
+  // an enumeration can be iterated over as a whole,
+  // as a concatenation of its parts
   counter = 0;
   for (final l in listEnum.take(10)) {
     print("list of booleans #$counter: $l");
