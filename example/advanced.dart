@@ -77,7 +77,7 @@ listsOfBools() {
   // toLazyList() iterates over the enumeration as a whole, seen as a
   // concatenation of its parts
   counter = 0;
-  listEnum.toLazyList().take(10).forEach((l) {
+  listEnum.take(10).forEach((l) {
     print("list of booleans #$counter: $l");
     counter++;
   });

@@ -60,12 +60,9 @@ final e.Enumeration<e.Finite<Term>> preterms =
     skeletons.map((t) => t.expand(0));
 
 Term term(int i) {
-  e.LazyList<e.Finite<Term>> fs = preterms.toLazyList();
-  while (true) {
-    final e.Finite<Term> f = fs.head;
+  for (e.Finite<Term> f in preterms) {
     if (i < f.length) return f[i];
     i -= f.length;
-    fs = fs.tail;
   }
 }
 

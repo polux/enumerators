@@ -137,27 +137,6 @@ abstract class Finite<A> extends Iterable<A> {
   }
 }
 
-class _FiniteIterator<A> extends Iterator<A> {
-  final Finite<A> finite;
-  int index = -1;
-  A current = null;
-
-  _FiniteIterator(this.finite);
-
-  bool moveNext() {
-    if (index == finite.length) return false;
-
-    index++;
-    if (index == finite.length) {
-      current = null;
-      return false;
-    } else {
-      current = finite[index];
-      return true;
-    }
-  }
-}
-
 class _FEmpty<A> extends Finite<A> {
   final int length = 0;
   final bool isEmpty = true;
@@ -201,6 +180,27 @@ class _FMap<A,B> extends Finite<B> {
       , length = mapped.length;
 }
 
+class _FiniteIterator<A> extends Iterator<A> {
+  final Finite<A> finite;
+  int index = -1;
+  A current = null;
+
+  _FiniteIterator(this.finite);
+
+  bool moveNext() {
+    if (index == finite.length) return false;
+
+    index++;
+    if (index == finite.length) {
+      current = null;
+      return false;
+    } else {
+      current = finite[index];
+      return true;
+    }
+  }
+}
+
 class Thunk<A> {
   A _cached;
   Function gen;
@@ -216,7 +216,7 @@ class Thunk<A> {
 /**
  * An enumeration of finite parts of A.
  */
-class Enumeration<A> {
+class Enumeration<A> extends Iterable<A> {
   Thunk<LazyList<Finite<A>>> thunk;
 
   Enumeration(this.thunk);
@@ -239,18 +239,17 @@ class Enumeration<A> {
     var ps = parts;
     var it = i;
     while (true) {
-      if (ps.isEmpty()) throw new RangeError(i);
+      if (ps.isEmpty) throw new RangeError(i);
       if (it < ps.head.length) return ps.head[it];
       it = it - ps.head.length;
       ps = ps.tail;
     }
   }
 
-  LazyList<A> toLazyList() =>
-      parts.map((f) => f.toLazyList()).concat();
+  Iterator<A> get iterator => parts.expand((f) => f).iterator;
 
   static LazyList<Finite> _zipPlus(LazyList<Finite> xs, LazyList<Finite> ys) =>
-      (xs.isEmpty() || ys.isEmpty())
+      (xs.isEmpty || ys.isEmpty)
           ? xs + ys
           : new LazyList.cons(xs.head + ys.head,
                               () => _zipPlus(xs.tail, ys.tail));
@@ -275,7 +274,7 @@ class Enumeration<A> {
    */
   static LazyList<LazyList> _reversals(LazyList l) {
     go(LazyList rev, LazyList xs) {
-      if (xs.isEmpty()) return new LazyList.empty();
+      if (xs.isEmpty) return new LazyList.empty();
       final newrev = new LazyList.cons(xs.head, () => rev);
       return new LazyList.cons(newrev, () => go(newrev, xs.tail));
     }
@@ -283,7 +282,7 @@ class Enumeration<A> {
   }
 
   static _prod(LazyList<Finite> xs, LazyList<LazyList<Finite>> yss) {
-    if (xs.isEmpty() || yss.isEmpty()) return new LazyList.empty();
+    if (xs.isEmpty || yss.isEmpty) return new LazyList.empty();
 
     goX(ry) =>
         xs.tail.tails().map((fs) => _conv(fs, ry));
@@ -293,7 +292,7 @@ class Enumeration<A> {
         _conv(xs, ry),
         () {
           final _rys = rys();
-          return _rys.isEmpty()
+          return _rys.isEmpty
               ? goX(ry)
               : goY(_rys.head, () => _rys.tail);
         });
@@ -304,12 +303,12 @@ class Enumeration<A> {
 
   static _conv(LazyList<Finite> xs, LazyList<Finite> ys) {
     var result = new Finite.empty();
-    if (ys.isEmpty()) return result;
+    if (ys.isEmpty) return result;
     while(true) {
-      if (xs.isEmpty()) return result;
+      if (xs.isEmpty) return result;
       result = result + (xs.head * ys.head);
       ys = ys.tail;
-      if (ys.isEmpty()) return result;
+      if (ys.isEmpty) return result;
       xs = xs.tail;
     }
   }

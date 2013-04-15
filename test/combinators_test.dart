@@ -77,7 +77,6 @@ void testListsOfNats() {
 
 void testPositiveRationalsArePositive() {
   c.positiveRationals
-   .toLazyList()
    .take(1000)
    .forEach((r) => expect(r, greaterThan(0)));
 }
@@ -85,7 +84,6 @@ void testPositiveRationalsArePositive() {
 void testRationalsAreAllDifferent() {
   final rats = new Set<Rational>();
   c.positiveRationals
-   .toLazyList()
    .take(1000)
    .forEach(rats.add);
   expect(rats.length, equals(1000));

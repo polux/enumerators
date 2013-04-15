@@ -71,7 +71,7 @@ void testKnot() {
 
 void main() {
   test('empty.parts is empty',
-       () => expect(empty().parts.isEmpty(), isTrue));
+       () => expect(empty().parts.isEmpty, isTrue));
   test('singleton is a singleton',
        () => checkEquals(singleton('foo'), [['foo']]));
   test('pay shifts an enumeration', testPay);
