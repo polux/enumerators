@@ -1,5 +1,5 @@
 name: enumerators
-version: 0.2.8
+version: 0.3.0
 author: Paul Brauner <polux@google.com>
 description: A small DSL for writing enumerators of Dart datatypes, inspired by http://hackage.haskell.org/package/testing-feat
 homepage: https://code.google.com/p/dart-enumerators/
