@@ -76,7 +76,8 @@ $$.MappedIterator = {"": "Iterator;_liblib$_current,_iterator,_f",
 
 $$.WhereIterable = {"": "Iterable;_iterable,_f",
   get$iterator: function(_) {
-    return $.WhereIterator$($.get$iterator$ax(this._iterable), this._f);
+    var t1 = this._iterable;
+    return $.WhereIterator$(t1.get$iterator(t1), this._f);
   }
 };
 
@@ -10987,6 +10988,7 @@ $.Keyword_kuh = new $.Keyword("return", false, false, $.PrecedenceInfo_StringWra
 $.StringWrapper_EOF = new $.StringWrapper("EOF");
 $.PrecedenceInfo_StringWrapper_EOF_0_0 = new $.PrecedenceInfo($.StringWrapper_EOF, 0, 0);
 $.StringWrapper_mT8 = new $.StringWrapper("<<=");
+$.JSArray_methods = $.JSArray.prototype;
 $.EventStreamProvider_load = new $.EventStreamProvider("load");
 $.StringWrapper_CVt = new $.StringWrapper("`");
 $.PrecedenceInfo_W7J = new $.PrecedenceInfo($.StringWrapper_CVt, 0, 96);
@@ -11072,7 +11074,6 @@ $.PrecedenceInfo_P90 = new $.PrecedenceInfo($.StringWrapper_zn6, 0, 125);
 $.PrecedenceInfo_0Od = new $.PrecedenceInfo($.StringWrapper_ebp, 0, 92);
 $.Keyword_Usc = new $.Keyword("if", false, false, $.PrecedenceInfo_StringWrapper_keyword_0_107);
 $.PrecedenceInfo_8eb = new $.PrecedenceInfo($.StringWrapper_Df7, 14, 40);
-$.JSArray_methods = $.JSArray.prototype;
 $.PrecedenceInfo_8eb0 = new $.PrecedenceInfo($.StringWrapper_OT9, 14, 151);
 $.EventStreamProvider_focus = new $.EventStreamProvider("focus");
 $.PrecedenceInfo_gkc = new $.PrecedenceInfo($.StringWrapper_MQk, 9, 143);
