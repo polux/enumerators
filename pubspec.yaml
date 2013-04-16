@@ -7,6 +7,6 @@ documentation: http://goo.gl/EBMXr
 environment:
   sdk: '>=0.4.7'
 dependencies:
-  rational: <1.0.0
+  rational: '>=0.0.4 <1.0.0'
 dev_dependencies:
   unittest: any
