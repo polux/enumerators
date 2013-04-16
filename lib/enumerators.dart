@@ -5,6 +5,8 @@
 
 library enumerators;
 
+import 'dart:collection';
+
 part 'src/lazy_list.dart';
 
 class Pair<A,B> {
@@ -34,7 +36,7 @@ class _IEval extends _Instruction {
   toString() => "eval($fin, $i)";
 }
 
-abstract class Finite<A> extends Iterable<A> {
+abstract class Finite<A> extends IterableBase<A> {
   Finite();
   factory Finite.empty() => new _FEmpty();
   factory Finite.singleton(A x) => new _FSingleton(x);
@@ -216,7 +218,7 @@ class Thunk<A> {
 /**
  * An enumeration of finite parts of A.
  */
-class Enumeration<A> extends Iterable<A> {
+class Enumeration<A> extends IterableBase<A> {
   Thunk<LazyList<Finite<A>>> thunk;
 
   Enumeration(this.thunk);

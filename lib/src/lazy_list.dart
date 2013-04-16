@@ -8,7 +8,7 @@ part of enumerators;
 /**
  * A lazy list, possibly infinite.
  */
-abstract class LazyList<A> extends Iterable<A> {
+abstract class LazyList<A> extends IterableBase<A> {
   LazyList._();
   factory LazyList.empty() => new _Empty();
   factory LazyList.cons(A head, LazyList<A> gen()) => new _Cons(head, gen);

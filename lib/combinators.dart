@@ -6,7 +6,7 @@
 library combinators;
 
 import 'package:enumerators/enumerators.dart';
-import 'package:rationals/rationals.dart';
+import 'package:rational/rational.dart';
 
 /* public API */
 

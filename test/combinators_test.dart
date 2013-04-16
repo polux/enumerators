@@ -5,7 +5,7 @@
 
 import 'package:enumerators/enumerators.dart' show Enumeration;
 import 'package:enumerators/combinators.dart' as c;
-import 'package:rationals/rationals.dart';
+import 'package:rational/rational.dart';
 import 'package:unittest/unittest.dart';
 import 'src/common.dart';
 
@@ -78,7 +78,7 @@ void testListsOfNats() {
 void testPositiveRationalsArePositive() {
   c.positiveRationals
    .take(1000)
-   .forEach((r) => expect(r, greaterThan(0)));
+   .forEach((r) => expect(r >= new Rational(0), isTrue));
 }
 
 void testRationalsAreAllDifferent() {
