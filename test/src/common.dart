@@ -31,20 +31,20 @@ LazyList _listToLazyList(List list) {
 }
 
 
-void checkPrefixEquals(Enumeration enum, List<List> prefix) {
-  final enumPrefix = enum.parts
-                         .take(prefix.length)
-                         .toList()
-                         .map(_finiteToList)
-                         .toList();
+void checkPrefixEquals(Enumeration enumeration, List<List> prefix) {
+  final enumPrefix = enumeration.parts
+                                .take(prefix.length)
+                                .toList()
+                                .map(_finiteToList)
+                                .toList();
   expect(enumPrefix, equals(prefix));
 }
 
-void checkEquals(Enumeration enum, List<List> list) {
-  final enumPrefix = enum.parts
-                         .toList()
-                         .map(_finiteToList)
-                         .toList();
+void checkEquals(Enumeration enumeration, List<List> list) {
+  final enumPrefix = enumeration.parts
+                                .toList()
+                                .map(_finiteToList)
+                                .toList();
   expect(enumPrefix, equals(list));
 }
 

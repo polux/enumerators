@@ -65,8 +65,8 @@ abstract class Finite<A> extends IterableBase<A> {
   A operator [](int index) => _eval(this, index);
 
   static _eval(Finite finite, int index) {
-    var instructions = <_Instruction>[new _IEval(finite, index)];
-    var stack = [];
+    final instructions = <_Instruction>[new _IEval(finite, index)];
+    final stack = [];
     while (instructions.length > 0) {
       _Instruction instr = instructions.removeLast();
       if (instr is _IEval) {
@@ -229,9 +229,9 @@ class Enumeration<A> extends IterableBase<A> {
       new Enumeration(
           new Thunk(() => new LazyList.singleton(new Finite.singleton(x))));
   factory Enumeration.fix(Enumeration f(Enumeration)) {
-    final enum = new Enumeration(null);
-    final result = f(enum);
-    enum.thunk = result.thunk;
+    final enumeration = new Enumeration(null);
+    final result = f(enumeration);
+    enumeration.thunk = result.thunk;
     return result;
   }
 

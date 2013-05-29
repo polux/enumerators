@@ -17,21 +17,21 @@ final Enumeration<int> ints = _mkInts();
 final Enumeration<Rational> positiveRationals = _mkPositiveRationals();
 final Enumeration<Rational> rationals = _mkRationals();
 
-Enumeration<List> listsOf(Enumeration enum) {
+Enumeration<List> listsOf(Enumeration enumeration) {
   final nils = singleton(_nil());
-  consesOf(e) => singleton(_cons).apply(enum).apply(e);
+  consesOf(e) => singleton(_cons).apply(enumeration).apply(e);
   final llists = fix((e) => (nils + consesOf(e).pay()));
   return llists.map((ll) => ll.toList());
 }
 
-Enumeration<Set> setsOf(Enumeration enum) {
+Enumeration<Set> setsOf(Enumeration enumeration) {
   // bijection from lists of nats to sets of values
   bij(list) {
     var res = new Set();
     int sum = -1;
     for (final x in list) {
       sum += 1 + x;
-      res.add(enum[sum]);
+      res.add(enumeration[sum]);
     }
     return res;
   }

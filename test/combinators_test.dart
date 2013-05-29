@@ -52,7 +52,7 @@ void testStrings() {
 }
 
 void testListsOfBools() {
-  final enum = c.listsOf(c.bools);
+  final enumeration = c.listsOf(c.bools);
   final t = true, f = false;
   final expected = [
     [[]],
@@ -60,11 +60,11 @@ void testListsOfBools() {
     [[t, t], [t, f], [f, t], [f, f]],
     [[t, t, t], [t, t, f], [t, f, t], [t, f, f],
      [f, t, t], [f, t, f], [f, f, t], [f, f, f]]];
-  checkPrefixEquals(enum, expected);
+  checkPrefixEquals(enumeration, expected);
 }
 
 void testListsOfNats() {
-  final enum = c.listsOf(c.nats);
+  final enumeration = c.listsOf(c.nats);
   final expected = [
     [[]],
     [[0]],
@@ -72,7 +72,7 @@ void testListsOfNats() {
     [[0, 0, 0], [0, 1], [1, 0], [2]],
     [[0, 0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 2],
      [1, 0, 0], [1, 1], [2, 0], [3]]];
-  checkPrefixEquals(enum, expected);
+  checkPrefixEquals(enumeration, expected);
 }
 
 void testPositiveRationalsArePositive() {
