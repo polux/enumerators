@@ -45,7 +45,7 @@ class Hole extends Term {
   }
 }
 
-typedef Term Term2Term(Term);
+typedef Term Term2Term(Term term);
 
 Term lam(Term t) => new Lam(t);
 Term2Term app(Term t1) => (Term t2) => new App(t1, t2);
