@@ -1,49 +1,73 @@
 part of enumerators;
 
-class _Instruction {}
+abstract class _Instruction {
+  int get tag;
+
+  static const DONE = 0;
+  static const MAP = 1;
+  static const PAIR2 = 2;
+  static const PAIR1 = 3;
+}
 
 class _IDone implements _Instruction {
+  final tag = _Instruction.DONE;
 }
 
 class _IMap implements _Instruction {
+  final tag = _Instruction.MAP;
   final fun;
   _IMap(this.fun);
 }
 
 class _IPair2 implements _Instruction {
+  final tag = _Instruction.PAIR2;
   final snd;
   _IPair2(this.snd);
 }
 
 class _IPair1 implements _Instruction {
+  final tag = _Instruction.PAIR1;
   final Finite fin2;
   final r;
   _IPair1(this.fin2, this.r);
 }
 
-class _Operation {}
+abstract class _Operation {
+  int get tag;
+
+  static const ADD = 0;
+  static const EMPTY = 1;
+  static const MULT = 2;
+  static const SINGLETON = 3;
+  static const MAP = 4;
+}
 
 class _OAdd implements _Operation {
+  final tag = _Operation.ADD;
   final Finite fin1;
   final Finite fin2;
   _OAdd(this.fin1, this.fin2);
 }
 
 class _OEmpty implements _Operation {
+  final tag = _Operation.EMPTY;
 }
 
 class _OMult implements _Operation {
+  final tag = _Operation.MULT;
   final Finite fin1;
   final Finite fin2;
   _OMult(this.fin1, this.fin2);
 }
 
 class _OSingleton implements _Operation {
+  final tag = _Operation.SINGLETON;
   final val;
   _OSingleton(this.val);
 }
 
 class _OMap implements _Operation {
+  final tag = _Operation.MAP;
   final Finite fin;
   final Function fun;
   _OMap(this.fin, this.fun);
@@ -92,46 +116,56 @@ class Finite<A> extends IterableBase<A> {
 
     while (true) {
       if (evalOp) {
-        if (op is _OAdd) {
-          if (index < op.fin1.length) {
-            op = op.fin1.op;
-          } else {
-            final f1 = op.fin1;
-            op = op.fin2.op;
-            index = index - f1.length;
-          }
-        } else if (op is _OEmpty) {
-          throw new RangeError(index);
-        } else if (op is _OMult) {
-          int q = index ~/ op.fin2.length;
-          int r = index % op.fin2.length;
-          index = q;
-          stack.add(new _IPair1(op.fin2, r));
-          op = op.fin1.op;
-        } else if (op is _OSingleton) {
-          if (index == 0) {
-            val = op.val;
-            evalOp = false;
-          } else {
+        switch(op.tag) {
+          case _Operation.ADD:
+            if (index < op.fin1.length) {
+              op = op.fin1.op;
+            } else {
+              final f1 = op.fin1;
+              op = op.fin2.op;
+              index = index - f1.length;
+            }
+            break;
+          case _Operation.EMPTY:
             throw new RangeError(index);
-          }
-        } else if (op is _OMap) {
-          stack.add(new _IMap(op.fun));
-          op = op.fin.op;
+            break;
+          case _Operation.MULT:
+            int q = index ~/ op.fin2.length;
+            int r = index % op.fin2.length;
+            index = q;
+            stack.add(new _IPair1(op.fin2, r));
+            op = op.fin1.op;
+            break;
+          case _Operation.SINGLETON:
+            if (index == 0) {
+              val = op.val;
+              evalOp = false;
+            } else {
+              throw new RangeError(index);
+            }
+            break;
+          case _Operation.MAP:
+            stack.add(new _IMap(op.fun));
+            op = op.fin.op;
+            break;
         }
       } else {
         final instr = stack.removeLast();
-        if (instr is _IDone) {
-          return val;
-        } else if (instr is _IMap) {
-          val = instr.fun(val);
-        } else if (instr is _IPair2) {
-          val = new Pair(instr.snd, val);
-        } else if (instr is _IPair1) {
-          op = instr.fin2.op;
-          index = instr.r;
-          stack.add(new _IPair2(val));
-          evalOp = true;
+        switch (instr.tag) {
+          case _Instruction.DONE:
+            return val;
+          case _Instruction.MAP:
+            val = instr.fun(val);
+            break;
+          case _Instruction.PAIR2:
+            val = new Pair(instr.snd, val);
+            break;
+          case _Instruction.PAIR1:
+            op = instr.fin2.op;
+            index = instr.r;
+            stack.add(new _IPair2(val));
+            evalOp = true;
+            break;
         }
       }
     }
