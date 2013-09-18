@@ -1,6 +1,7 @@
 part of enumerators;
 
 abstract class _Instruction {
+  // Ideally we would switch/case on runtimeType but it's to slow for now
   int get tag;
 
   static const DONE = 0;
@@ -33,6 +34,7 @@ class _IPair1 implements _Instruction {
 }
 
 abstract class _Operation {
+  // Ideally we would switch/case on runtimeType but it's to slow for now
   int get tag;
 
   static const ADD = 0;
