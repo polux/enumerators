@@ -3,7 +3,6 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-import 'package:enumerators/enumerators.dart' show Enumeration;
 import 'package:enumerators/combinators.dart' as c;
 import 'package:rational/rational.dart';
 import 'package:unittest/unittest.dart';
