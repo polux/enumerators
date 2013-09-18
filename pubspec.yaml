@@ -9,4 +9,5 @@ environment:
 dependencies:
   rational: '>=0.0.4 <1.0.0'
 dev_dependencies:
+  benchmark_harness: any
   unittest: any
