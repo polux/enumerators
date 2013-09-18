@@ -1,37 +1,79 @@
 part of enumerators;
 
 class _Instruction {}
-class _IProd extends _Instruction {}
-class _IMap extends _Instruction {
-  final Function f;
-  _IMap(this.f);
-}
-class _IEval extends _Instruction {
-  final Finite fin;
-  final int i;
-  _IEval(this.fin, this.i);
-  toString() => "eval($fin, $i)";
+
+class _IDone implements _Instruction {
 }
 
-abstract class Finite<A> extends IterableBase<A> {
-  Finite();
-  factory Finite.empty() => new _FEmpty();
-  factory Finite.singleton(A x) => new _FSingleton(x);
+class _IMap implements _Instruction {
+  final fun;
+  _IMap(this.fun);
+}
+
+class _IPair2 implements _Instruction {
+  final snd;
+  _IPair2(this.snd);
+}
+
+class _IPair1 implements _Instruction {
+  final Finite fin2;
+  final r;
+  _IPair1(this.fin2, this.r);
+}
+
+class _Operation {}
+
+class _OAdd implements _Operation {
+  final Finite fin1;
+  final Finite fin2;
+  _OAdd(this.fin1, this.fin2);
+}
+
+class _OEmpty implements _Operation {
+}
+
+class _OMult implements _Operation {
+  final Finite fin1;
+  final Finite fin2;
+  _OMult(this.fin1, this.fin2);
+}
+
+class _OSingleton implements _Operation {
+  final val;
+  _OSingleton(this.val);
+}
+
+class _OMap implements _Operation {
+  final Finite fin;
+  final Function fun;
+  _OMap(this.fin, this.fun);
+}
+
+class Finite<A> extends IterableBase<A> {
+  final int length;
+  final _Operation op;
+
+  Finite._(this.length, this.op);
+
+  factory Finite.empty() => new Finite._(0, new _OEmpty());
+  factory Finite.singleton(A x) => new Finite._(1, new _OSingleton(x));
 
   /**
    * Union.
    */
-  Finite<A> operator +(Finite<A> fin) => new _FSum(this, fin);
+  Finite<A> operator +(Finite<A> fin) =>
+      new Finite._(this.length + fin.length, new _OAdd(this, fin));
 
   /**
    * Cartesian product.
    */
-  Finite<Pair> operator *(Finite fin) => new _FProd(this, fin);
+  Finite<Pair> operator *(Finite fin) =>
+      new Finite._(this.length * fin.length, new _OMult(this, fin));
 
   /**
    * [Finite] is a functor.
    */
-  Finite map(f(A x)) => new _FMap(f, this);
+  Finite map(f(A x)) => new Finite._(this.length, new _OMap(this, f));
 
   /**
    * [Finite] is an applicative functor.
@@ -42,43 +84,57 @@ abstract class Finite<A> extends IterableBase<A> {
   A operator [](int index) => _eval(this, index);
 
   static _eval(Finite finite, int index) {
-    final instructions = <_Instruction>[new _IEval(finite, index)];
-    final stack = [];
-    while (instructions.length > 0) {
-      _Instruction instr = instructions.removeLast();
-      if (instr is _IEval) {
-        final i = instr.i;
-        final fin = instr.fin;
-        if (fin is _FEmpty) {
+    bool evalOp = true;
+
+    var val;
+    final stack = <_Instruction>[new _IDone()];
+    var op = finite.op;
+
+    while (true) {
+      if (evalOp) {
+        if (op is _OAdd) {
+          if (index < op.fin1.length) {
+            op = op.fin1.op;
+          } else {
+            final f1 = op.fin1;
+            op = op.fin2.op;
+            index = index - f1.length;
+          }
+        } else if (op is _OEmpty) {
           throw new RangeError(index);
-        } else if (fin is _FSingleton) {
-          if (i == 0)
-            stack.add(fin.value);
-          else
+        } else if (op is _OMult) {
+          int q = index ~/ op.fin2.length;
+          int r = index % op.fin2.length;
+          index = q;
+          stack.add(new _IPair1(op.fin2, r));
+          op = op.fin1.op;
+        } else if (op is _OSingleton) {
+          if (index == 0) {
+            val = op.val;
+            evalOp = false;
+          } else {
             throw new RangeError(index);
-        } else if (fin is _FSum) {
-          if (i < fin.fin1.length)
-            instructions.add(new _IEval(fin.fin1, i));
-          else
-            instructions.add(new _IEval(fin.fin2, i - fin.fin1.length));
-        } else if (fin is _FProd) {
-          instructions.add(new _IProd());
-          instructions.add(new _IEval(fin.fin1, i ~/ fin.fin2.length));
-          instructions.add(new _IEval(fin.fin2, i % fin.fin2.length));
-        } else if (fin is _FMap) {
-          instructions.add(new _IMap(fin.f));
-          instructions.add(new _IEval(fin.mapped, i));
+          }
+        } else if (op is _OMap) {
+          stack.add(new _IMap(op.fun));
+          op = op.fin.op;
         }
-      } else if (instr is _IProd) {
-        final v1 = stack.removeLast();
-        final v2 = stack.removeLast();
-        stack.add(new Pair(v1, v2));
-      } else if (instr is _IMap) {
-        final v = stack.removeLast();
-        stack.add(instr.f(v));
+      } else {
+        final instr = stack.removeLast();
+        if (instr is _IDone) {
+          return val;
+        } else if (instr is _IMap) {
+          val = instr.fun(val);
+        } else if (instr is _IPair2) {
+          val = new Pair(instr.snd, val);
+        } else if (instr is _IPair1) {
+          op = instr.fin2.op;
+          index = instr.r;
+          stack.add(new _IPair2(val));
+          evalOp = true;
+        }
       }
     }
-    return stack[0];
   }
 
   String toString() {
@@ -114,49 +170,6 @@ abstract class Finite<A> extends IterableBase<A> {
     }
     return this[length - 1];
   }
-}
-
-class _FEmpty<A> extends Finite<A> {
-  final int length = 0;
-  final bool isEmpty = true;
-  _FEmpty();
-}
-
-class _FSingleton<A> extends Finite<A> {
-  final int length = 1;
-  final bool isEmpty = false;
-  final A value;
-  _FSingleton(this.value);
-}
-
-class _FSum<A> extends Finite<A> {
-  final int length;
-  final Finite<A> fin1;
-  final Finite<A> fin2;
-  _FSum(fin1, fin2)
-      : this.fin1 = fin1
-      , this.fin2 = fin2
-      , length = fin1.length + fin2.length;
-}
-
-class _FProd<A> extends Finite<A> {
-  final int length;
-  final Finite<A> fin1;
-  final Finite<A> fin2;
-  _FProd(fin1, fin2)
-      : this.fin1 = fin1
-      , this.fin2 = fin2
-      , length = fin1.length * fin2.length;
-}
-
-class _FMap<A,B> extends Finite<B> {
-  final int length;
-  final Function f;
-  final Finite<A> mapped;
-  _FMap(B f(A x), Finite<A> mapped)
-      : this.f = f
-      , this.mapped = mapped
-      , length = mapped.length;
 }
 
 class _FiniteIterator<A> extends Iterator<A> {
