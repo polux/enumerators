@@ -5,8 +5,8 @@ OUTDIR=$ROOTDIR/continuous
 TMPDIR=`mktemp -d`
 
 cd $TMPDIR
-git clone https://code.google.com/p/dart-enumerators/
-cd dart-enumerators
+git clone https://github.com/polux/enumerators
+cd enumerators
 pub install
 rm -rf $OUTDIR
 dartdoc -v --link-api --pkg=packages/ --out $OUTDIR lib/enumerators.dart lib/combinators.dart

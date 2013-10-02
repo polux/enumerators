@@ -67,7 +67,7 @@ final Enumeration&lt;int&gt; nats = _mkNats()
 </div>
 <div class="field"><h4 id="positiveRationals">
 <button class="show-code">Code</button>
-final <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="rationals/Rational.html">Rational</a>&gt;         <strong>positiveRationals</strong> <a class="anchor-link"
+final <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="rational/Rational.html">Rational</a>&gt;         <strong>positiveRationals</strong> <a class="anchor-link"
             href="#positiveRationals"
             title="Permalink to positiveRationals">#</a>
         </h4>
@@ -79,7 +79,7 @@ final Enumeration&lt;Rational&gt; positiveRationals = _mkPositiveRationals()
 </div>
 <div class="field"><h4 id="rationals">
 <button class="show-code">Code</button>
-final <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="rationals/Rational.html">Rational</a>&gt;         <strong>rationals</strong> <a class="anchor-link"
+final <a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="rational/Rational.html">Rational</a>&gt;         <strong>rationals</strong> <a class="anchor-link"
             href="#rationals"
             title="Permalink to rationals">#</a>
         </h4>
@@ -129,18 +129,18 @@ Enumeration&lt;Map&gt; mapsOf(Enumeration keys, Enumeration values) {
 </div>
 <div class="method"><h4 id="setsOf">
 <button class="show-code">Code</button>
-<a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/Set.html">Set</a>&gt; <strong>setsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> enum) <a class="anchor-link" href="#setsOf"
+<a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/Set.html">Set</a>&gt; <strong>setsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> enumeration) <a class="anchor-link" href="#setsOf"
               title="Permalink to setsOf">#</a></h4>
 <div class="doc">
 <pre class="source">
-Enumeration&lt;Set&gt; setsOf(Enumeration enum) {
+Enumeration&lt;Set&gt; setsOf(Enumeration enumeration) {
  // bijection from lists of nats to sets of values
  bij(list) {
    var res = new Set();
    int sum = -1;
    for (final x in list) {
      sum += 1 + x;
-     res.add(enum[sum]);
+     res.add(enumeration[sum]);
    }
    return res;
  }
@@ -151,13 +151,13 @@ Enumeration&lt;Set&gt; setsOf(Enumeration enum) {
 </div>
 <div class="method"><h4 id="listsOf">
 <button class="show-code">Code</button>
-<a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/List.html">List</a>&gt; <strong>listsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> enum) <a class="anchor-link" href="#listsOf"
+<a href="enumerators/Enumeration.html">Enumeration</a>&lt;<a href="http://api.dartlang.org/dart_core/List.html">List</a>&gt; <strong>listsOf</strong>(<a href="enumerators/Enumeration.html">Enumeration</a> enumeration) <a class="anchor-link" href="#listsOf"
               title="Permalink to listsOf">#</a></h4>
 <div class="doc">
 <pre class="source">
-Enumeration&lt;List&gt; listsOf(Enumeration enum) {
+Enumeration&lt;List&gt; listsOf(Enumeration enumeration) {
  final nils = singleton(_nil());
- consesOf(e) =&gt; singleton(_cons).apply(enum).apply(e);
+ consesOf(e) =&gt; singleton(_cons).apply(enumeration).apply(e);
  final llists = fix((e) =&gt; (nils + consesOf(e).pay()));
  return llists.map((ll) =&gt; ll.toList());
 }
@@ -169,7 +169,7 @@ Enumeration&lt;List&gt; listsOf(Enumeration enum) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-04-15 16:43:48.076</div>
+          <div>This page was generated at 2013-10-03 01:32:29.846</div>
         </div>
         <script async src="client-live-nav.js"></script>
         </body></html>
