@@ -12,7 +12,7 @@ enumerating all the lists of booleans up to a certain depth
 ([smallcheck](http://hackage.haskell.org/package/smallcheck) style). It is
 however up to the user to provide the glorified while loops that constitute the
 "quickcheck" and "smallcheck" functions of these libraries. The
-[propcheck](http://code.google.com/p/dart-check/) library just does that.
+[propcheck](http://pub.dartlang.org/packages/propcheck) library just does that.
 
 ## Simple Usage
 
