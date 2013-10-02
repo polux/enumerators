@@ -1,5 +1,7 @@
 # Random Access Enumerations
 
+[![Build Status](https://drone.io/github.com/polux/enumerators/status.png)](https://drone.io/github.com/polux/enumerators/latest)
+
 A library which allows for randomized or exhaustive testing of Dart functions
 by providing random access enumerations of Dart datatypes. It is heavily
 inspired by Jonas Duregård's
@@ -13,6 +15,10 @@ enumerating all the lists of booleans up to a certain depth
 however up to the user to provide the glorified while loops that constitute the
 "quickcheck" and "smallcheck" functions of these libraries. The
 [propcheck](http://pub.dartlang.org/packages/propcheck) library just does that.
+
+## Documentation
+
+The only documentation so far is this README and the [API reference](http://polux.github.io/enumerators/continuous/).
 
 ## Simple Usage
 
