@@ -9,6 +9,6 @@ git clone https://github.com/polux/enumerators
 cd enumerators
 pub install
 rm -rf $OUTDIR
-dartdoc -v --link-api --pkg=packages/ --out $OUTDIR lib/enumerators.dart lib/combinators.dart
+dartdoc -v --link-api --pkg=packages/ --exclude-lib meta,rational --out $OUTDIR lib/enumerators.dart lib/combinators.dart
 #dartdoc -v --generate-app-cache --link-api --pkg=packages/ --out $OUTDIR lib/enumerators.dart lib/combinators.dart
 rm -rf $TMPDIR
