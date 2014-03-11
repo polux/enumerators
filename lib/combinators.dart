@@ -98,14 +98,17 @@ Enumeration<bool> _mkBools() {
 }
 
 Enumeration<int> _mkNats() {
-  final zeros = singleton(0);
-  succOf(e) => e.map((n) => n + 1);
-  return fix((e) => zeros + succOf(e).pay());
+  mkList(int n) => new LazyList.cons(
+      new Finite.singleton(n), () => mkList(n+1));
+  return new Enumeration(new Thunk(() => mkList(0)));
 }
 
 Enumeration<int> _mkInts() {
-  final natsPlusOne = nats.map((n) => n + 1);
-  return singleton(0) + (natsPlusOne + natsPlusOne.map((n) => -n)).pay();
+  mkList(int n) => new LazyList.cons(
+      new Finite.singleton(n) + new Finite.singleton(-n),
+      () => mkList(n+1));
+  return new Enumeration(new Thunk(() =>
+      new LazyList.cons(new Finite.singleton(0), () => mkList(1))));
 }
 
 Enumeration<String> _mkStrings() {
