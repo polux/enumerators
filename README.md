@@ -18,7 +18,7 @@ however up to the user to provide the glorified while loops that constitute the
 
 ## Documentation
 
-The only documentation so far is this README and the [API reference](http://polux.github.io/enumerators/continuous/).
+The only documentation so far is this README and the [API reference](http://goo.gl/UZX3qD).
 
 ## Simple Usage
 
