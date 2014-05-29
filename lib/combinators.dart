@@ -10,12 +10,29 @@ import 'package:rational/rational.dart';
 
 /* public API */
 
+const _ALPHABET = const [
+    "a","b","c","d","e","f","g","h","i","j","k","l","m",
+    "n","o","p","q","r","s","t","u","v","w","x","y","z"];
+
 final Enumeration<bool> bools = _mkBools();
-final Enumeration<String> strings = _mkStrings();
+
+/// Strings made out of the english alphabet.
+final Enumeration<String> strings = stringsFrom(_ALPHABET);
+
 final Enumeration<int> nats = _mkNats();
+
 final Enumeration<int> ints = _mkInts();
+
 final Enumeration<Rational> positiveRationals = _mkPositiveRationals();
+
 final Enumeration<Rational> rationals = _mkRationals();
+
+/// Strings made out of [characters].
+Enumeration<String> stringsFrom(List<String> characters) {
+  final chars = characters.map(singleton).fold(empty(), (e1, e2) => e1 + e2);
+  final charsLists = listsOf(chars);
+  return charsLists.map((cs) => cs.join());
+}
 
 Enumeration<List> listsOf(Enumeration enumeration) {
   final nils = singleton(_nil());
@@ -109,14 +126,6 @@ Enumeration<int> _mkInts() {
       () => mkList(n+1));
   return new Enumeration(new Thunk(() =>
       new LazyList.cons(new Finite.singleton(0), () => mkList(1))));
-}
-
-Enumeration<String> _mkStrings() {
-  final cs = const ["a","b","c","d","e","f","g","h","i","j","k","l","m",
-                    "n","o","p","q","r","s","t","u","v","w","x","y","z"];
-  final chars = cs.map(singleton).fold(empty(), (e1, e2) => e1 + e2);
-  final charsLists = listsOf(chars);
-  return charsLists.map((cs) => cs.join());
 }
 
 Enumeration<Rational> _mkRationals() {

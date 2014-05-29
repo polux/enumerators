@@ -114,12 +114,12 @@ treesOfNaturals() {
   // middle of the set, we can get a pretty deep one
   print("a deep tree: ${treeEnum.parts[50][cardOf50 ~/ 2]}");
 
-  // again, finding the nth member of the enumeration is fast, even for big ns
-  print("a random tree: ${treeEnum[pow(10,100)]}");
+  for (int n = 100; n < 1900; n += 1) {
+    print(n);
+    treeEnum[pow(2, n)];
+  }
 }
 
 main() {
-  listsOfBools();
-  print("");
   treesOfNaturals();
 }

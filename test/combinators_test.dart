@@ -3,6 +3,7 @@
 
 // Author: Paul Brauner (polux@google.com)
 
+import 'package:enumerators/enumerators.dart' as e;
 import 'package:enumerators/combinators.dart' as c;
 import 'package:rational/rational.dart';
 import 'package:unittest/unittest.dart';
@@ -29,8 +30,18 @@ void testInts() {
 }
 
 void testStrings() {
-  final chars = const ["a","b","c","d","e","f","g","h","i","j","k","l","m",
-                       "n","o","p","q","r","s","t","u","v","w","x","y","z"];
+  final alphabet = [
+      "a","b","c","d","e","f","g","h","i","j","k","l","m",
+      "n","o","p","q","r","s","t","u","v","w","x","y","z"];
+  _checkStrings(alphabet, c.strings);
+}
+
+void testStringsFrom() {
+  final characters = ["c", "b", ";", "\n", "z", "\\"];
+  _checkStrings(characters, c.stringsFrom(characters));
+}
+
+void _checkStrings(List<String> chars, e.Enumeration<String> enumeration) {
   final expected1 = chars;
   final expected2 = [];
   for (final c1 in chars) {
