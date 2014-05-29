@@ -1,11 +1,11 @@
 name: enumerators
-version: 0.5.1
+version: 0.5.2
 author: Paul Brauner <polux@google.com>
 description: A small DSL for writing enumerators of Dart datatypes, inspired by http://hackage.haskell.org/package/testing-feat
 homepage: https://github.com/polux/enumerators
 environment:
   sdk: '>=0.8.10+6 <2.0.0'
-documentation: http://goo.gl/9AZBla
+documentation: http://goo.gl/UZX3qD
 dependencies:
   rational: '>=0.0.4 <1.0.0'
 dev_dependencies:
