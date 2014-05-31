@@ -37,8 +37,8 @@ Enumeration<String> stringsFrom(List<String> characters) {
 Enumeration<List> listsOf(Enumeration enumeration) {
   final nils = singleton(_nil());
   consesOf(e) => singleton(_cons).apply(enumeration).apply(e);
-  final llists = fix((e) => (nils + consesOf(e).pay()));
-  return llists.map((ll) => ll.toList());
+  final linkedLists = fix((e) => (nils + consesOf(e).pay()));
+  return linkedLists.map((linkedList) => linkedList.toList());
 }
 
 Enumeration<Set> setsOf(Enumeration enumeration) {
@@ -68,6 +68,14 @@ Enumeration<Map> mapsOf(Enumeration keys, Enumeration values) {
   }
   return listsOf(nats * values).map(bij);
 
+}
+
+Enumeration<List> productsOf(List<Enumeration> enumerations) {
+  var products = singleton(_nil());
+  for (final enumeration in enumerations.reversed) {
+    products = singleton(_cons).apply(enumeration).apply(products);
+  }
+  return products.map((linkedList) => linkedList.toList());
 }
 
 /* implementation */

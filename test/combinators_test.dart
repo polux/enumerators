@@ -85,6 +85,16 @@ void testListsOfNats() {
   checkPrefixEquals(enumeration, expected);
 }
 
+void testProductsOf() {
+  final enumeration = c.productsOf([c.bools, c.nats, c.nats]);
+  final expected = [
+    [[true, 0, 0], [false, 0, 0]],
+    [[true, 0, 1], [true, 1, 0], [false, 0, 1], [false, 1, 0]],
+    [[true, 0, 2], [true, 1, 1], [true, 2, 0], [false, 0, 2], [false, 1, 1],
+     [false, 2, 0]]];
+  checkPrefixEquals(enumeration, expected);
+}
+
 void testPositiveRationalsArePositive() {
   c.positiveRationals
    .take(1000)
@@ -111,6 +121,8 @@ main() {
        testListsOfBools);
   test('listsOf(nats) is { 0: [[0]], 1: [[0, 0], [1]], .. }',
        testListsOfNats);
+  test('productsOf(bools, nats, nats) is { 0: [[true,0,0],[false,0,0]], ... }',
+      testProductsOf);
   test('positive rationals are positive', testPositiveRationalsArePositive);
   test('rationals are all different', testRationalsAreAllDifferent);
 }
