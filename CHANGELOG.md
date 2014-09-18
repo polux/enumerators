@@ -1,5 +1,9 @@
 # Enumerators Changelog
 
+## 0.5.4
+
+- Move run_all_tests.sh to tests/run.sh to adhere to pub.drone.io's conventions
+
 ## 0.5.3
 
 - Added `productsOf`
