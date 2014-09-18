@@ -113,11 +113,6 @@ treesOfNaturals() {
   // the first tree of the 50th set is Leaf(48), which is boring, but at the
   // middle of the set, we can get a pretty deep one
   print("a deep tree: ${treeEnum.parts[50][cardOf50 ~/ 2]}");
-
-  for (int n = 100; n < 1900; n += 1) {
-    print(n);
-    treeEnum[pow(2, n)];
-  }
 }
 
 main() {
