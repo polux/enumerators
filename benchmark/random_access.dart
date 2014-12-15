@@ -5,7 +5,7 @@ import 'package:enumerators/combinators.dart' as c;
 class IterationBenchmark extends BenchmarkBase {
   final listsOfNats = c.listsOf(c.nats);
 
-  const IterationBenchmark() : super("Random access over lists of nats");
+  IterationBenchmark() : super("Random access over lists of nats");
 
   static void main() {
     new IterationBenchmark().report();
