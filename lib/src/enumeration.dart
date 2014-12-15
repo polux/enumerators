@@ -1,9 +1,11 @@
 part of enumerators;
 
 class Thunk<A> {
+  final Function gen;
   A _cached;
-  Function gen;
+
   Thunk(A gen()) : this.gen = gen;
+
   A get value {
     if (_cached == null) {
       _cached = gen();
@@ -19,12 +21,15 @@ class Enumeration<A> extends IterableBase<A> {
   Thunk<LazyList<Finite<A>>> thunk;
 
   Enumeration(this.thunk);
+
   factory Enumeration.empty() =>
       new Enumeration(
           new Thunk(() => new LazyList.empty()));
+
   factory Enumeration.singleton(A x) =>
       new Enumeration(
           new Thunk(() => new LazyList.singleton(new Finite.singleton(x))));
+
   factory Enumeration.fix(Enumeration f(Enumeration)) {
     final enumeration = new Enumeration(null);
     final result = f(enumeration);
