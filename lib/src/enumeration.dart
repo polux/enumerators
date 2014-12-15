@@ -30,7 +30,7 @@ class Enumeration<A> extends IterableBase<A> {
       new Enumeration(
           new Thunk(() => new LazyList.singleton(new Finite.singleton(x))));
 
-  factory Enumeration.fix(Enumeration f(Enumeration)) {
+  factory Enumeration.fix(Enumeration f(Enumeration e)) {
     final enumeration = new Enumeration(null);
     final result = f(enumeration);
     enumeration.thunk = result.thunk;
