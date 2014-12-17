@@ -38,6 +38,7 @@ class _EIPair2 extends _EInstruction {
 
 abstract class _LInstruction {
   static const LI_DONE = 0;
+  static const LI_MAP = 1;
   static const LI_ADD1 = 2;
   static const LI_ADD2 = 3;
   static const LI_MULT1 = 4;
@@ -53,29 +54,38 @@ class _LIDone extends _LInstruction {
   _LIDone() : super._(_LInstruction.LI_DONE);
 }
 
+class _LIMap extends _LInstruction {
+  final Finite toUpdate;
+
+  _LIMap(this.toUpdate) : super._(_LInstruction.LI_MAP);
+}
+
 class _LIAdd1 extends _LInstruction {
+  final Finite toUpdate;
   final Finite fin;
 
-  _LIAdd1(this.fin) : super._(_LInstruction.LI_ADD1);
+  _LIAdd1(this.toUpdate, this.fin) : super._(_LInstruction.LI_ADD1);
 }
 
 class _LIAdd2 extends _LInstruction {
+  final Finite toUpdate;
   final int val;
 
-  _LIAdd2(this.val) : super._(_LInstruction.LI_ADD2);
+  _LIAdd2(this.toUpdate, this.val) : super._(_LInstruction.LI_ADD2);
 }
 
 class _LIMult1 extends _LInstruction {
-  final tag = _LInstruction.LI_MULT1;
+  final Finite toUpdate;
   final Finite fin;
 
-  _LIMult1(this.fin): super._(_LInstruction.LI_MULT1);
+  _LIMult1(this.toUpdate, this.fin): super._(_LInstruction.LI_MULT1);
 }
 
 class _LIMult2 extends _LInstruction {
+  final Finite toUpdate;
   final int val;
 
-  _LIMult2(this.val) : super._(_LInstruction.LI_MULT2);
+  _LIMult2(this.toUpdate, this.val) : super._(_LInstruction.LI_MULT2);
 }
 
 abstract class Finite<A> extends IterableBase<A> {
@@ -147,14 +157,15 @@ abstract class Finite<A> extends IterableBase<A> {
               evalFin = false;
               break;
             case MAP:
+              stack.add(new _LIMap(fin));
               fin = fin.fin;
               break;
             case ADD:
-              stack.add(new _LIAdd1(fin.right));
+              stack.add(new _LIAdd1(fin.left, fin.right));
               fin = fin.left;
               break;
             case MULT:
-              stack.add(new _LIMult1(fin.right));
+              stack.add(new _LIMult1(fin.left, fin.right));
               fin = fin.left;
               break;
           }
@@ -164,20 +175,27 @@ abstract class Finite<A> extends IterableBase<A> {
         switch (instr.tag) {
           case _LInstruction.LI_DONE:
             return val;
+          case _LInstruction.LI_MAP:
+            instr.toUpdate._cachedLength = val;
+            break;
           case _LInstruction.LI_ADD1:
-            stack.add(new _LIAdd2(val));
             fin = instr.fin;
+            stack.add(new _LIAdd2(fin, val));
+            instr.toUpdate._cachedLength = val;
             evalFin = true;
             break;
           case _LInstruction.LI_ADD2:
+            instr.toUpdate._cachedLength = val;
             val += instr.val;
             break;
           case _LInstruction.LI_MULT1:
-            stack.add(new _LIMult2(val));
             fin = instr.fin;
+            stack.add(new _LIMult2(fin, val));
+            instr.toUpdate._cachedLength = val;
             evalFin = true;
             break;
           case _LInstruction.LI_MULT2:
+            instr.toUpdate._cachedLength = val;
             val *= instr.val;
             break;
         }
