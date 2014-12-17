@@ -3,7 +3,12 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-part of enumerators;
+library finite;
+
+import 'dart:collection';
+
+import 'lazy_list.dart';
+import 'pair.dart';
 
 abstract class _EInstruction {
   static const EI_DONE = 0;

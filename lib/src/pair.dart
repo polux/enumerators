@@ -3,7 +3,7 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-part of enumerators;
+library pair;
 
 class Pair<A,B> {
   final A fst;

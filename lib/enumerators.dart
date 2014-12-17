@@ -5,9 +5,7 @@
 
 library enumerators;
 
-import 'dart:collection';
-
-part 'src/lazy_list.dart';
-part 'src/pair.dart';
-part 'src/finite.dart';
-part 'src/enumeration.dart';
+export 'src/lazy_list.dart';
+export 'src/pair.dart';
+export 'src/finite.dart';
+export 'src/enumeration.dart';

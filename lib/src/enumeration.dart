@@ -3,7 +3,13 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-part of enumerators;
+library enumeration;
+
+import 'dart:collection';
+
+import 'finite.dart';
+import 'lazy_list.dart';
+import 'pair.dart';
 
 class Thunk<A> {
   final Function gen;

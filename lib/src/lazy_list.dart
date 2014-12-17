@@ -3,7 +3,11 @@
 
 // Author: Paul Brauner (polux@google.com)
 
-part of enumerators;
+library lazy_list;
+
+import 'dart:collection';
+
+import 'pair.dart';
 
 /**
  * A lazy list, possibly infinite.
