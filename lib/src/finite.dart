@@ -1,105 +1,113 @@
 part of enumerators;
 
-abstract class _Instruction {
+abstract class _EInstruction {
+  static const EI_DONE = 0;
+  static const EI_MAP = 1;
+  static const EI_PAIR2 = 2;
+  static const EI_PAIR1 = 3;
+
   // Ideally we would switch/case on runtimeType but it's to slow for now
-  int get tag;
+  final int tag;
 
-  static const DONE = 0;
-  static const MAP = 1;
-  static const PAIR2 = 2;
-  static const PAIR1 = 3;
+  _EInstruction._(this.tag);
 }
 
-class _IDone implements _Instruction {
-  final tag = _Instruction.DONE;
+class _EIDone extends _EInstruction {
+  _EIDone() : super._(_EInstruction.EI_DONE);
 }
 
-class _IMap implements _Instruction {
-  final tag = _Instruction.MAP;
+class _EIMap extends _EInstruction {
   final fun;
-  _IMap(this.fun);
+
+  _EIMap(this.fun) : super._(_EInstruction.EI_MAP);
 }
 
-class _IPair2 implements _Instruction {
-  final tag = _Instruction.PAIR2;
-  final snd;
-  _IPair2(this.snd);
-}
-
-class _IPair1 implements _Instruction {
-  final tag = _Instruction.PAIR1;
+class _EIPair1 extends _EInstruction {
   final Finite fin2;
   final r;
-  _IPair1(this.fin2, this.r);
+
+  _EIPair1(this.fin2, this.r) : super._(_EInstruction.EI_PAIR1);
 }
 
-abstract class _Operation {
-  // Ideally we would switch/case on runtimeType but it's to slow for now
-  int get tag;
+class _EIPair2 extends _EInstruction {
+  final tag = _EInstruction.EI_PAIR2;
+  final snd;
 
+  _EIPair2(this.snd) : super._(_EInstruction.EI_PAIR2);
+}
+
+abstract class _LInstruction {
+  static const LI_DONE = 0;
+  static const LI_ADD1 = 2;
+  static const LI_ADD2 = 3;
+  static const LI_MULT1 = 4;
+  static const LI_MULT2 = 5;
+
+  // Ideally we would switch/case on runtimeType but it's to slow for now
+  final int tag;
+
+  _LInstruction._(this.tag);
+}
+
+class _LIDone extends _LInstruction {
+  _LIDone() : super._(_LInstruction.LI_DONE);
+}
+
+class _LIAdd1 extends _LInstruction {
+  final Finite fin;
+
+  _LIAdd1(this.fin) : super._(_LInstruction.LI_ADD1);
+}
+
+class _LIAdd2 extends _LInstruction {
+  final int val;
+
+  _LIAdd2(this.val) : super._(_LInstruction.LI_ADD2);
+}
+
+class _LIMult1 extends _LInstruction {
+  final tag = _LInstruction.LI_MULT1;
+  final Finite fin;
+
+  _LIMult1(this.fin): super._(_LInstruction.LI_MULT1);
+}
+
+class _LIMult2 extends _LInstruction {
+  final int val;
+
+  _LIMult2(this.val) : super._(_LInstruction.LI_MULT2);
+}
+
+abstract class Finite<A> extends IterableBase<A> {
   static const ADD = 0;
   static const EMPTY = 1;
   static const MULT = 2;
   static const SINGLETON = 3;
   static const MAP = 4;
-}
 
-class _OAdd implements _Operation {
-  final tag = _Operation.ADD;
-  final Finite fin1;
-  final Finite fin2;
-  _OAdd(this.fin1, this.fin2);
-}
+  // Ideally we would switch/case on runtimeType but it's to slow for now
+  final int tag;
 
-class _OEmpty implements _Operation {
-  final tag = _Operation.EMPTY;
-}
+  Finite._(this.tag);
 
-class _OMult implements _Operation {
-  final tag = _Operation.MULT;
-  final Finite fin1;
-  final Finite fin2;
-  _OMult(this.fin1, this.fin2);
-}
+  factory Finite.empty() => new _EmptyFinite();
 
-class _OSingleton implements _Operation {
-  final tag = _Operation.SINGLETON;
-  final val;
-  _OSingleton(this.val);
-}
-
-class _OMap implements _Operation {
-  final tag = _Operation.MAP;
-  final Finite fin;
-  final Function fun;
-  _OMap(this.fin, this.fun);
-}
-
-class Finite<A> extends IterableBase<A> {
-  final int length;
-  final _Operation op;
-
-  Finite._(this.length, this.op);
-
-  factory Finite.empty() => new Finite._(0, new _OEmpty());
-  factory Finite.singleton(A x) => new Finite._(1, new _OSingleton(x));
+  factory Finite.singleton(A x) => new _SingletonFinite(x);
 
   /**
    * Union.
    */
-  Finite<A> operator +(Finite<A> fin) =>
-      new Finite._(this.length + fin.length, new _OAdd(this, fin));
+  Finite<A> operator +(Finite<A> fin) => new _AddFinite(this, fin);
 
   /**
    * Cartesian product.
    */
-  Finite<Pair> operator *(Finite fin) =>
-      new Finite._(this.length * fin.length, new _OMult(this, fin));
+  Finite<Pair> operator *(Finite fin) => new _MultFinite(this, fin);
 
   /**
    * [Finite] is a functor.
    */
-  Finite map(f(A x)) => new Finite._(this.length, new _OMap(this, f));
+  Finite map(f(A x)) => new _MapFinite(this, f);
 
   /**
    * [Finite] is an applicative functor.
@@ -107,66 +115,136 @@ class Finite<A> extends IterableBase<A> {
   Finite apply(Finite fin) =>
       (this * fin).map((pair) => (pair.fst as Function)(pair.snd));
 
-  A operator [](int index) => _eval(this, index);
+  int _cachedLength;
 
-  static _eval(Finite finite, int index) {
-    bool evalOp = true;
+  int get length {
+    if (_cachedLength == null) {
+      _cachedLength = _evalLength(this);
+    }
+    return _cachedLength;
+  }
+
+  static int _evalLength(Finite finite) {
+    bool evalFin = true;
+    final stack = <_LInstruction>[new _LIDone()];
 
     var val;
-    final stack = <_Instruction>[new _IDone()];
-    var op = finite.op;
+    var fin = finite;
 
     while (true) {
-      if (evalOp) {
-        switch(op.tag) {
-          case _Operation.ADD:
-            if (index < op.fin1.length) {
-              op = op.fin1.op;
+      if (evalFin) {
+        if (fin._cachedLength != null) {
+          val = fin._cachedLength;
+          evalFin = false;
+        } else {
+          switch(fin.tag) {
+            case EMPTY:
+              val = fin._cachedLength = 0;
+              evalFin = false;
+              break;
+            case SINGLETON:
+              val = fin._cachedLength = 1;
+              evalFin = false;
+              break;
+            case MAP:
+              fin = fin.fin;
+              break;
+            case ADD:
+              stack.add(new _LIAdd1(fin.right));
+              fin = fin.left;
+              break;
+            case MULT:
+              stack.add(new _LIMult1(fin.right));
+              fin = fin.left;
+              break;
+          }
+        }
+      } else {
+        final instr = stack.removeLast();
+        switch (instr.tag) {
+          case _LInstruction.LI_DONE:
+            return val;
+          case _LInstruction.LI_ADD1:
+            stack.add(new _LIAdd2(val));
+            fin = instr.fin;
+            evalFin = true;
+            break;
+          case _LInstruction.LI_ADD2:
+            val += instr.val;
+            break;
+          case _LInstruction.LI_MULT1:
+            stack.add(new _LIMult2(val));
+            fin = instr.fin;
+            evalFin = true;
+            break;
+          case _LInstruction.LI_MULT2:
+            val *= instr.val;
+            break;
+        }
+      }
+    }
+  }
+
+  A operator [](int index) => _eval(this, index);
+
+  static Object _eval(Finite finite, int index) {
+    bool evalFin = true;
+    final stack = <_EInstruction>[new _EIDone()];
+
+    var val;
+    var fin = finite;
+
+    while (true) {
+      if (evalFin) {
+        switch(fin.tag) {
+          case ADD:
+            if (index < fin.left.length) {
+              fin = fin.left;
             } else {
-              final f1 = op.fin1;
-              op = op.fin2.op;
-              index = index - f1.length;
+              final left = fin.left;
+              fin = fin.right;
+              index = index - left.length;
             }
             break;
-          case _Operation.EMPTY:
+          case EMPTY:
             throw new RangeError(index);
             break;
-          case _Operation.MULT:
-            int q = index ~/ op.fin2.length;
-            int r = index % op.fin2.length;
+          case MULT:
+            int q = index ~/ fin.right.length;
+            int r = index % fin.right.length;
             index = q;
-            stack.add(new _IPair1(op.fin2, r));
-            op = op.fin1.op;
+            stack.add(new _EIPair1(fin.right, r));
+            fin = fin.left;
             break;
-          case _Operation.SINGLETON:
+          case SINGLETON:
             if (index == 0) {
-              val = op.val;
-              evalOp = false;
+              val = fin.val;
+              evalFin = false;
             } else {
               throw new RangeError(index);
             }
             break;
-          case _Operation.MAP:
-            stack.add(new _IMap(op.fun));
-            op = op.fin.op;
+          case MAP:
+            stack.add(new _EIMap(fin.fun));
+            fin = fin.fin;
             break;
         }
       } else {
         final instr = stack.removeLast();
         switch (instr.tag) {
-          case _Instruction.DONE:
+          case _EInstruction.EI_DONE:
             return val;
-          case _Instruction.MAP:
+          case _EInstruction.EI_MAP:
             val = instr.fun(val);
             break;
-          case _Instruction.PAIR2:
+          case _EInstruction.EI_PAIR2:
             val = new Pair(instr.snd, val);
             break;
-          case _Instruction.PAIR1:
-            op = instr.fin2.op;
+          case _EInstruction.EI_PAIR1:
+            fin = instr.fin2;
             index = instr.r;
-            stack.add(new _IPair2(val));
-            evalOp = true;
+            stack.add(new _EIPair2(val));
+            evalFin = true;
             break;
         }
       }
@@ -207,6 +285,38 @@ class Finite<A> extends IterableBase<A> {
     return this[length - 1];
   }
 }
+
+class _EmptyFinite<A> extends Finite<A> {
+  _EmptyFinite() : super._(Finite.EMPTY);
+}
+
+class _SingletonFinite<A> extends Finite<A> {
+  final A val;
+
+  _SingletonFinite(this.val) : super._(Finite.SINGLETON);
+}
+
+class _AddFinite<A> extends Finite<A> {
+  final Finite<A> left;
+  final Finite<A> right;
+
+  _AddFinite(this.left, this.right) : super._(Finite.ADD);
+}
+
+class _MultFinite<A> extends Finite<A> {
+  final Finite<A> left;
+  final Finite<A> right;
+
+  _MultFinite(this.left, this.right) : super._(Finite.MULT);
+}
+
+class _MapFinite<A> extends Finite<A> {
+  final Finite<A> fin;
+  final Function fun;
+
+  _MapFinite(this.fin, fun(A x)) : super._(Finite.MAP), this.fun = fun;
+}
+
 
 class _FiniteIterator<A> extends Iterator<A> {
   final Finite<A> finite;
