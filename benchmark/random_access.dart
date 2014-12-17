@@ -1,3 +1,8 @@
+// Copyright (c) 2014, Google Inc. All rights reserved. Use of this source code
+// is governed by a BSD-style license that can be found in the LICENSE file.
+
+// Author: Paul Brauner (polux@google.com)
+
 import 'dart:math';
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:enumerators/combinators.dart' as c;
