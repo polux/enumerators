@@ -216,9 +216,6 @@ abstract class Finite<A> extends IterableBase<A> {
         switch (instr.tag) {
           case _LInstruction.LI_DONE:
             return val;
-          case _LInstruction.LI_MAP:
-            instr.toUpdate._cachedLength = val;
-            break;
           case _LInstruction.LI_ADD1:
             fin = instr.fin;
             stack.add(new _LIAdd2(fin, val));
@@ -239,6 +236,9 @@ abstract class Finite<A> extends IterableBase<A> {
             instr.toUpdate._cachedLength = val;
             val *= instr.val;
             break;
+          case _LInstruction.LI_MAP:
+            instr.toUpdate._cachedLength = val;
+            break;
         }
       }
     }
@@ -256,6 +256,17 @@ abstract class Finite<A> extends IterableBase<A> {
     while (true) {
       if (evalFin) {
         switch(fin.tag) {
+          case EMPTY:
+            throw new RangeError(index);
+            break;
+          case SINGLETON:
+            if (index == 0) {
+              val = fin.val;
+              evalFin = false;
+            } else {
+              throw new RangeError(index);
+            }
+            break;
           case ADD:
             if (index < fin.left.length) {
               fin = fin.left;
@@ -265,23 +276,12 @@ abstract class Finite<A> extends IterableBase<A> {
               index = index - left.length;
             }
             break;
-          case EMPTY:
-            throw new RangeError(index);
-            break;
           case MULT:
             int q = index ~/ fin.right.length;
             int r = index % fin.right.length;
             index = q;
             stack.add(new _EIPair1(fin.right, r));
             fin = fin.left;
-            break;
-          case SINGLETON:
-            if (index == 0) {
-              val = fin.val;
-              evalFin = false;
-            } else {
-              throw new RangeError(index);
-            }
             break;
           case MAP:
             stack.add(new _EIMap(fin.fun));
@@ -293,17 +293,17 @@ abstract class Finite<A> extends IterableBase<A> {
         switch (instr.tag) {
           case _EInstruction.EI_DONE:
             return val;
-          case _EInstruction.EI_MAP:
-            val = instr.fun(val);
-            break;
-          case _EInstruction.EI_PAIR2:
-            val = new Pair(instr.snd, val);
-            break;
           case _EInstruction.EI_PAIR1:
             fin = instr.fin2;
             index = instr.r;
             stack.add(new _EIPair2(val));
             evalFin = true;
+            break;
+          case _EInstruction.EI_PAIR2:
+            val = new Pair(instr.snd, val);
+            break;
+          case _EInstruction.EI_MAP:
+            val = instr.fun(val);
             break;
         }
       }
