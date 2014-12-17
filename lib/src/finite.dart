@@ -133,9 +133,9 @@ abstract class Finite<A> extends IterableBase<A> {
   /**
    * Cartesian product.
    */
-  Finite operator *(Finite fin) {
-    if (this._isEmpty) return this;
-    if (fin._isEmpty) return fin;
+  Finite<Pair> operator *(Finite fin) {
+    if (this._isEmpty) return FINITE_EMPTY;
+    if (fin._isEmpty) return FINITE_EMPTY;
     if (this._isSingleton && fin._isSingleton) {
       _SingletonFinite self = this;
       _SingletonFinite other = fin;
