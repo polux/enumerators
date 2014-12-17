@@ -6,7 +6,6 @@
 library finite;
 
 import 'dart:collection';
-import 'dart:mirrors';
 
 import 'lazy_list.dart';
 import 'pair.dart';
@@ -354,13 +353,6 @@ class _SingletonFinite<A> extends Finite<A> {
   final A val;
 
   _SingletonFinite(this.val) : super._(Finite.SINGLETON);
-
-  String toString() {
-    String repr = (val is Function)
-        ? (reflect(val) as ClosureMirror).function.source
-        : val.toString();
-    return "[$repr]";
-  }
 }
 
 class _AddFinite<A> extends Finite<A> {
@@ -368,8 +360,6 @@ class _AddFinite<A> extends Finite<A> {
   final Finite<A> right;
 
   _AddFinite(this.left, this.right) : super._(Finite.ADD);
-
-  String toString() => "($left + $right)";
 }
 
 class _MultFinite<A> extends Finite<A> {
@@ -377,8 +367,6 @@ class _MultFinite<A> extends Finite<A> {
   final Finite<A> right;
 
   _MultFinite(this.left, this.right) : super._(Finite.MULT);
-
-  String toString() => "($left * $right)";
 }
 
 class _MapFinite<A> extends Finite<A> {
@@ -386,11 +374,6 @@ class _MapFinite<A> extends Finite<A> {
   final Function fun;
 
   _MapFinite(this.fin, fun(A x)) : super._(Finite.MAP), this.fun = fun;
-
-  String toString() {
-    String funRepr = (reflect(fun) as ClosureMirror).function.source;
-    return "map($funRepr, $fin)";
-  }
 }
 
 
