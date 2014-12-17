@@ -6,6 +6,7 @@
 library finite;
 
 import 'dart:collection';
+import 'dart:mirrors';
 
 import 'lazy_list.dart';
 import 'pair.dart';
@@ -110,24 +111,55 @@ abstract class Finite<A> extends IterableBase<A> {
 
   Finite._(this.tag);
 
-  factory Finite.empty() => new _EmptyFinite();
+  bool get _isEmpty => (tag == Finite.EMPTY);
+  bool get _isSingleton => (tag == Finite.SINGLETON);
+  bool get _isAdd => (tag == Finite.ADD);
+  bool get _isMult => (tag == Finite.MULT);
+  bool get _isMap => (tag == Finite.MAP);
 
-  factory Finite.singleton(A x) => new _SingletonFinite(x);
+  static final Finite FINITE_EMPTY = new _EmptyFinite();
+  factory Finite.empty() => FINITE_EMPTY;
+
+  factory Finite.singleton(A x) => new _SingletonFinite<A>(x);
 
   /**
    * Union.
    */
-  Finite<A> operator +(Finite<A> fin) => new _AddFinite(this, fin);
+  Finite<A> operator +(Finite<A> fin) {
+    if (this._isEmpty) return fin;
+    if (fin._isEmpty) return this;
+    return new _AddFinite(this, fin);
+  }
 
   /**
    * Cartesian product.
    */
-  Finite<Pair> operator *(Finite fin) => new _MultFinite(this, fin);
+  Finite operator *(Finite fin) {
+    if (this._isEmpty) return this;
+    if (fin._isEmpty) return fin;
+    if (this._isSingleton && fin._isSingleton) {
+      _SingletonFinite self = this;
+      _SingletonFinite other = fin;
+      return new _SingletonFinite(new Pair(self.val, other.val));
+    }
+    return new _MultFinite(this, fin);
+  }
 
   /**
    * [Finite] is a functor.
    */
-  Finite map(f(A x)) => new _MapFinite(this, f);
+  Finite map(f(A x)) {
+    if (this._isEmpty) return this;
+    if (this._isSingleton) {
+      _SingletonFinite self = this;
+      return new _SingletonFinite(f(self.val));
+    }
+    if (this._isMap) {
+      _MapFinite self = this;
+      return new _MapFinite(self.fin, (x) => f(self.fun(x)));
+    }
+    return new _MapFinite(this, f);
+  }
 
   /**
    * [Finite] is an applicative functor.
@@ -322,6 +354,13 @@ class _SingletonFinite<A> extends Finite<A> {
   final A val;
 
   _SingletonFinite(this.val) : super._(Finite.SINGLETON);
+
+  String toString() {
+    String repr = (val is Function)
+        ? (reflect(val) as ClosureMirror).function.source
+        : val.toString();
+    return "[$repr]";
+  }
 }
 
 class _AddFinite<A> extends Finite<A> {
@@ -329,6 +368,8 @@ class _AddFinite<A> extends Finite<A> {
   final Finite<A> right;
 
   _AddFinite(this.left, this.right) : super._(Finite.ADD);
+
+  String toString() => "($left + $right)";
 }
 
 class _MultFinite<A> extends Finite<A> {
@@ -336,6 +377,8 @@ class _MultFinite<A> extends Finite<A> {
   final Finite<A> right;
 
   _MultFinite(this.left, this.right) : super._(Finite.MULT);
+
+  String toString() => "($left * $right)";
 }
 
 class _MapFinite<A> extends Finite<A> {
@@ -343,6 +386,11 @@ class _MapFinite<A> extends Finite<A> {
   final Function fun;
 
   _MapFinite(this.fin, fun(A x)) : super._(Finite.MAP), this.fun = fun;
+
+  String toString() {
+    String funRepr = (reflect(fun) as ClosureMirror).function.source;
+    return "map($funRepr, $fin)";
+  }
 }
 
 
