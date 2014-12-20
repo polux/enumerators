@@ -1,5 +1,10 @@
 # Enumerators Changelog
 
+## 0.5.5
+
+- Added a toplevel `apply` function to enumearors
+- Fixed bogus const annotation on benchmarks' constructors
+
 ## 0.5.4
 
 - Move run_all_tests.sh to tests/run.sh to adhere to pub.drone.io's conventions
