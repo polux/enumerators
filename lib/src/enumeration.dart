@@ -9,7 +9,6 @@ import 'dart:collection';
 
 import 'finite.dart';
 import 'lazy_list.dart';
-import 'linked_list.dart';
 import 'pair.dart';
 
 class Thunk<A> {
