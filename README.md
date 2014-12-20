@@ -73,6 +73,7 @@ The `enumerators.dart` library provides lower-level primitives for building
 enumerations of user-defined datatypes.
 
 ```dart
+import 'dart:math';
 import 'package:enumerators/enumerators.dart';
 
 // we define linked lists as "Nil" and "Cons", as well as two shorthands "nil" 
@@ -128,7 +129,7 @@ main() {
 
   // we can access the nth list of the enumeration very fast, even for
   // big ns
-  print("member 10^10 of the enumeration: ${listEnum[Math.pow(10,10)]}");
+  print("member 10^10 of the enumeration: ${listEnum[pow(10,10)]}");
 }
 ```
 
