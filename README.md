@@ -75,8 +75,8 @@ enumerations of user-defined datatypes.
 ```dart
 import 'package:enumerators/enumerators.dart';
 
-// we define linked lists as "Nil" and "Cons", as well as two curryfied
-// shorthands "nil" and "cons" for their constructors
+// we define linked lists as "Nil" and "Cons", as well as two shorthands "nil" 
+// and "cons" for their constructors
 
 class LList {}
 class Nil extends LList {
@@ -89,7 +89,7 @@ class Cons extends LList {
 }
 
 nil() => new Nil();
-cons(x) => (xs) => new Cons(x,xs);
+cons(x, xs) => new Cons(x,xs);
 
 // here starts the real demo
 
@@ -101,7 +101,7 @@ main() {
 
   // we define an enumerator of lists of booleans
   final nilEnum = singleton(nil());
-  consEnum(e) => singleton(cons).apply(boolEnum).apply(e);
+  consEnum(e) => apply(cons, boolEnum, e);
   final listEnum = fix((e) => (nilEnum + consEnum(e)).pay());
 
   // listEnum is made of finite sets of lists of booleans (parts), the

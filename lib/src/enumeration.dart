@@ -9,6 +9,7 @@ import 'dart:collection';
 
 import 'finite.dart';
 import 'lazy_list.dart';
+import 'linked_list.dart';
 import 'pair.dart';
 
 class Thunk<A> {
@@ -156,5 +157,36 @@ class Enumeration<A> extends IterableBase<A> {
 // shortcuts
 
 Enumeration empty() => new Enumeration.empty();
+
 Enumeration singleton(x) => new Enumeration.singleton(x);
+
 Enumeration fix(Enumeration f(Enumeration)) => new Enumeration.fix(f);
+
+Enumeration apply(Function f, Enumeration arg1, [Enumeration arg2,
+                  Enumeration arg3, Enumeration arg4, Enumeration arg5]) {
+  if (arg2 == null) {
+    return arg1.map(f);
+  } else if (arg3 == null) {
+    return (arg1 * arg2).map((pair) {
+      return f(pair.fst, pair.snd);
+    });
+  } else if (arg4 == null) {
+    return ((arg1 * arg2) * arg3).map((pair) {
+      final a1 = pair.fst;
+      return f(a1.fst, a1.snd, pair.snd);
+    });
+  } else if (arg5 == null) {
+    return (((arg1 * arg2) * arg3) * arg4).map((pair) {
+      final a1 = pair.fst;
+      final a11 = a1.fst;
+      return f(a11.fst, a11.snd, a1.snd, pair.snd);
+    });
+  } else {
+    return ((((arg1 * arg2) * arg3) * arg4) * arg5).map((pair) {
+      final a1 = pair.fst;
+      final a11 = a1.fst;
+      final a111 = a11.fst;
+      return f(a111.fst, a111.snd, a11.snd, a1.snd, pair.snd);
+    });
+  }
+}

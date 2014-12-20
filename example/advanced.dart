@@ -20,7 +20,7 @@ class Cons extends LList {
 }
 
 nil() => new Nil();
-cons(x) => (xs) => new Cons(x,xs);
+cons(x, xs) => new Cons(x,xs);
 
 class Tree {}
 class Leaf extends Tree {
@@ -35,7 +35,7 @@ class Fork extends Tree {
 }
 
 leaf(x) => new Leaf(x);
-fork(t1) => (t2) => new Fork(t1, t2);
+fork(t1, t2) => new Fork(t1, t2);
 
 /** utils **/
 
@@ -58,7 +58,7 @@ listsOfBools() {
 
   // we define an enumerator of list of booleans
   final nilEnum = singleton(nil());
-  consEnum(e) => singleton(cons).apply(boolEnum).apply(e);
+  consEnum(e) => apply(cons, boolEnum, e);
   final listEnum = fix((e) => (nilEnum + consEnum(e)).pay());
 
   // listEnum is made of finite sets of lists of booleans (parts), the first
@@ -89,12 +89,12 @@ listsOfBools() {
 treesOfNaturals() {
   // enumeration of the naturals
   final zeroEnum = singleton(0);
-  succEnum(e) => singleton((n) => n + 1).apply(e);
+  succEnum(e) => apply((n) => n + 1, e);
   final natEnum = fix((e) => (zeroEnum + succEnum(e)).pay());
 
   // enumeration of the trees of naturals
-  final leafEnum = singleton(leaf).apply(natEnum);
-  forkEnum(e) => singleton(fork).apply(e).apply(e);
+  final leafEnum = apply(leaf, natEnum);
+  forkEnum(e) => apply(fork, e, e);
   final treeEnum = fix((e) => (leafEnum + forkEnum(e)).pay());
 
   // the set made of naturals of size 15 is {15}

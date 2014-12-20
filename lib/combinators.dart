@@ -8,6 +8,8 @@ library combinators;
 import 'package:enumerators/enumerators.dart';
 import 'package:rational/rational.dart';
 
+import 'src/linked_list.dart';
+
 /* public API */
 
 const _ALPHABET = const [
@@ -35,8 +37,8 @@ Enumeration<String> stringsFrom(List<String> characters) {
 }
 
 Enumeration<List> listsOf(Enumeration enumeration) {
-  final nils = singleton(_nil());
-  consesOf(e) => singleton(_cons).apply(enumeration).apply(e);
+  final nils = singleton(nil);
+  consesOf(e) => apply(cons, enumeration, e);
   final linkedLists = fix((e) => (nils + consesOf(e).pay()));
   return linkedLists.map((linkedList) => linkedList.toList());
 }
@@ -71,44 +73,14 @@ Enumeration<Map> mapsOf(Enumeration keys, Enumeration values) {
 }
 
 Enumeration<List> productsOf(List<Enumeration> enumerations) {
-  var products = singleton(_nil());
+  var products = singleton(nil);
   for (final enumeration in enumerations.reversed) {
-    products = singleton(_cons).apply(enumeration).apply(products);
+    products = apply(cons, enumeration, products);
   }
   return products.map((linkedList) => linkedList.toList());
 }
 
 /* implementation */
-
-abstract class _LList {
-  bool isEmpty();
-
-  List toList() {
-    var res = [];
-    var it = this;
-    while (!it.isEmpty()) {
-      _Cons cons = it;
-      res.add(cons.x);
-      it = cons.xs;
-    }
-    return res;
-  }
-}
-
-class _Nil extends _LList {
-  toString() => "nil";
-  isEmpty() => true;
-}
-
-class _Cons extends _LList {
-  final x, xs;
-  _Cons(this.x, this.xs);
-  toString() => "$x:$xs";
-  isEmpty() => false;
-}
-
-_nil() => new _Nil();
-_cons(x) => (xs) => new _Cons(x,xs);
 
 Map _toMap(List<Pair> assocs) {
   var res = new Map();
