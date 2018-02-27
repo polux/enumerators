@@ -10,9 +10,11 @@ import 'package:enumerators/enumerators.dart';
 /** datatypes **/
 
 class LList {}
+
 class Nil extends LList {
   toString() => "nil";
 }
+
 class Cons extends LList {
   final x, xs;
   Cons(this.x, this.xs);
@@ -20,14 +22,16 @@ class Cons extends LList {
 }
 
 nil() => new Nil();
-cons(x, xs) => new Cons(x,xs);
+cons(x, xs) => new Cons(x, xs);
 
 class Tree {}
+
 class Leaf extends Tree {
   final x;
   Leaf(this.x);
   toString() => "Leaf($x)";
 }
+
 class Fork extends Tree {
   final l, r;
   Fork(this.l, this.r);

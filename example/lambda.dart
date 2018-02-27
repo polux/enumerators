@@ -18,7 +18,7 @@ class Lam extends Term {
   final Term t;
   Lam(this.t);
   String pretty(int n) => "\\x$n -> ${t.pretty(n+1)}";
-  e.Finite<Term> expand(int n) => t.expand(n+1).map(lam);
+  e.Finite<Term> expand(int n) => t.expand(n + 1).map(lam);
 }
 
 class App extends Term {

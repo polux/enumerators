@@ -4,6 +4,7 @@
 // Author: Paul Brauner (polux@google.com)
 
 library simple;
+
 import 'package:enumerators/combinators.dart' as c;
 
 main() {
@@ -29,5 +30,5 @@ main() {
 
   // we can arbitrarily nest combinators
   print("a map from nats to lists of ints: "
-        "${c.mapsOf(c.nats, c.listsOf(c.ints))[123456789]}");
+      "${c.mapsOf(c.nats, c.listsOf(c.ints))[123456789]}");
 }

@@ -17,8 +17,7 @@ class IterationBenchmark extends BenchmarkBase {
 
   void run() {
     for (final part in listsOfNats.parts.take(10)) {
-      for (final list in part) {
-      }
+      for (final list in part) {}
     }
   }
 }

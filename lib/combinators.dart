@@ -13,8 +13,33 @@ import 'src/linked_list.dart';
 /* public API */
 
 const _ALPHABET = const [
-    "a","b","c","d","e","f","g","h","i","j","k","l","m",
-    "n","o","p","q","r","s","t","u","v","w","x","y","z"];
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+  "i",
+  "j",
+  "k",
+  "l",
+  "m",
+  "n",
+  "o",
+  "p",
+  "q",
+  "r",
+  "s",
+  "t",
+  "u",
+  "v",
+  "w",
+  "x",
+  "y",
+  "z"
+];
 
 final Enumeration<bool> bools = _mkBools();
 
@@ -54,12 +79,14 @@ Enumeration<Set<A>> setsOf<A>(Enumeration<A> enumeration) {
     }
     return res;
   }
+
   return listsOf(nats).map(bij);
 }
 
-Enumeration<Map<K,V>> mapsOf<K,V>(Enumeration<K> keys, Enumeration<V> values) {
+Enumeration<Map<K, V>> mapsOf<K, V>(
+    Enumeration<K> keys, Enumeration<V> values) {
   // bijection from lists of (nat x value) to maps of (key x value)
-  Map<K,V> bij(List<Pair<int,V>> assocs) {
+  Map<K, V> bij(List<Pair<int, V>> assocs) {
     var res = new Map();
     int sum = -1;
     for (final assoc in assocs) {
@@ -68,6 +95,7 @@ Enumeration<Map<K,V>> mapsOf<K,V>(Enumeration<K> keys, Enumeration<V> values) {
     }
     return res;
   }
+
   return listsOf(nats.times(values)).map(bij);
 }
 
@@ -86,30 +114,31 @@ Enumeration<bool> _mkBools() {
 }
 
 Enumeration<int> _mkNats() {
-  mkList(int n) => new LazyList.cons(
-      new Finite.singleton(n), () => mkList(n+1));
+  mkList(int n) =>
+      new LazyList.cons(new Finite.singleton(n), () => mkList(n + 1));
   return new Enumeration(new Thunk(() => mkList(0)));
 }
 
 Enumeration<int> _mkInts() {
   mkList(int n) => new LazyList.cons(
-      new Finite.singleton(n) + new Finite.singleton(-n),
-      () => mkList(n+1));
-  return new Enumeration(new Thunk(() =>
-      new LazyList.cons(new Finite.singleton(0), () => mkList(1))));
+      new Finite.singleton(n) + new Finite.singleton(-n), () => mkList(n + 1));
+  return new Enumeration(new Thunk(
+      () => new LazyList.cons(new Finite.singleton(0), () => mkList(1))));
 }
 
 Enumeration<Rational> _mkRationals() {
-  return singleton(new Rational(0))
-       + (positiveRationals + positiveRationals.map((r) => -r)).pay();
+  return singleton(new Rational(0)) +
+      (positiveRationals + positiveRationals.map((r) => -r)).pay();
 }
 
 Rational _unGcd(List<bool> path) {
   var numerator = 1;
   var denominator = 1;
   for (final b in path) {
-    if (b) denominator += numerator;
-    else numerator += denominator;
+    if (b)
+      denominator += numerator;
+    else
+      numerator += denominator;
   }
   return new Rational(numerator, denominator);
 }

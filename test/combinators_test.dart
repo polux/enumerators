@@ -10,7 +10,9 @@ import 'package:unittest/unittest.dart';
 import 'src/common.dart';
 
 void testBools() {
-  checkEquals(c.bools, [[true, false]]);
+  checkEquals(c.bools, [
+    [true, false]
+  ]);
 }
 
 void testNats() {
@@ -22,7 +24,9 @@ void testNats() {
 }
 
 void testInts() {
-  final expected = [[0]];
+  final expected = [
+    [0]
+  ];
   for (int n = 1; n < 500; n++) {
     expected.add([n, -n]);
   }
@@ -31,8 +35,33 @@ void testInts() {
 
 void testStrings() {
   final alphabet = [
-      "a","b","c","d","e","f","g","h","i","j","k","l","m",
-      "n","o","p","q","r","s","t","u","v","w","x","y","z"];
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "x",
+    "y",
+    "z"
+  ];
   _checkStrings(alphabet, c.strings);
 }
 
@@ -57,7 +86,12 @@ void _checkStrings(List<String> chars, e.Enumeration<String> enumeration) {
       }
     }
   }
-  final expected = [[''], expected1, expected2, expected3];
+  final expected = [
+    [''],
+    expected1,
+    expected2,
+    expected3
+  ];
   checkPrefixEquals(enumeration, expected);
 }
 
@@ -66,10 +100,27 @@ void testListsOfBools() {
   final t = true, f = false;
   final expected = [
     [[]],
-    [[t], [f]],
-    [[t, t], [t, f], [f, t], [f, f]],
-    [[t, t, t], [t, t, f], [t, f, t], [t, f, f],
-     [f, t, t], [f, t, f], [f, f, t], [f, f, f]]];
+    [
+      [t],
+      [f]
+    ],
+    [
+      [t, t],
+      [t, f],
+      [f, t],
+      [f, f]
+    ],
+    [
+      [t, t, t],
+      [t, t, f],
+      [t, f, t],
+      [t, f, f],
+      [f, t, t],
+      [f, t, f],
+      [f, f, t],
+      [f, f, f]
+    ]
+  ];
   checkPrefixEquals(enumeration, expected);
 }
 
@@ -77,35 +128,67 @@ void testListsOfNats() {
   final enumeration = c.listsOf(c.nats);
   final expected = [
     [[]],
-    [[0]],
-    [[0, 0], [1]],
-    [[0, 0, 0], [0, 1], [1, 0], [2]],
-    [[0, 0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 2],
-     [1, 0, 0], [1, 1], [2, 0], [3]]];
+    [
+      [0]
+    ],
+    [
+      [0, 0],
+      [1]
+    ],
+    [
+      [0, 0, 0],
+      [0, 1],
+      [1, 0],
+      [2]
+    ],
+    [
+      [0, 0, 0, 0],
+      [0, 0, 1],
+      [0, 1, 0],
+      [0, 2],
+      [1, 0, 0],
+      [1, 1],
+      [2, 0],
+      [3]
+    ]
+  ];
   checkPrefixEquals(enumeration, expected);
 }
 
 void testProductsOf() {
   final enumeration = c.productsOf([c.bools, c.nats, c.nats]);
   final expected = [
-    [[true, 0, 0], [false, 0, 0]],
-    [[true, 0, 1], [true, 1, 0], [false, 0, 1], [false, 1, 0]],
-    [[true, 0, 2], [true, 1, 1], [true, 2, 0], [false, 0, 2], [false, 1, 1],
-     [false, 2, 0]]];
+    [
+      [true, 0, 0],
+      [false, 0, 0]
+    ],
+    [
+      [true, 0, 1],
+      [true, 1, 0],
+      [false, 0, 1],
+      [false, 1, 0]
+    ],
+    [
+      [true, 0, 2],
+      [true, 1, 1],
+      [true, 2, 0],
+      [false, 0, 2],
+      [false, 1, 1],
+      [false, 2, 0]
+    ]
+  ];
   checkPrefixEquals(enumeration, expected);
 }
 
 void testPositiveRationalsArePositive() {
   c.positiveRationals
-   .take(1000)
-   .forEach((r) => expect(r >= new Rational(0), isTrue));
+      .take(1000)
+      .forEach((r) => expect(r >= new Rational(0), isTrue));
 }
 
 void testRationalsAreAllDifferent() {
   final rats = new Set<Rational>();
-  c.positiveRationals
-   .take(1000)
-   .forEach(rats.add);
+  c.positiveRationals.take(1000).forEach(rats.add);
   expect(rats.length, equals(1000));
 }
 
@@ -113,14 +196,15 @@ main() {
   test('bools is { 0: [true, false] }', testBools);
   test('nats is { 0: [], 1: [0], 2: [1], ... }', testNats);
   test('ints is { 0: [0], 1: [1, -1], 2: [2, -2], ... }', testInts);
-  test('stringsFrom("c", "b", ...") is { 0: [""], 1: ["c", "b", ...], '
-       '2: ["cc", "cb", ...], ... }', testStringsFrom);
+  test(
+      'stringsFrom("c", "b", ...") is { 0: [""], 1: ["c", "b", ...], '
+      '2: ["cc", "cb", ...], ... }',
+      testStringsFrom);
   test('strings is { 0: [""], 1: ["a".."z"], 2: ["aa", "ab", ...], ... }',
-       testStrings);
+      testStrings);
   test('listsOf(bools) is { 0: [[]], 1: [[true], [false]], .. }',
-       testListsOfBools);
-  test('listsOf(nats) is { 0: [[0]], 1: [[0, 0], [1]], .. }',
-       testListsOfNats);
+      testListsOfBools);
+  test('listsOf(nats) is { 0: [[0]], 1: [[0, 0], [1]], .. }', testListsOfNats);
   test('productsOf(bools, nats, nats) is { 0: [[true,0,0],[false,0,0]], ... }',
       testProductsOf);
   test('positive rationals are positive', testPositiveRationalsArePositive);

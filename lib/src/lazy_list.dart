@@ -16,7 +16,8 @@ abstract class LazyList<A> extends IterableBase<A> {
   LazyList._();
   factory LazyList.empty() => new _Empty();
   factory LazyList.cons(A head, LazyList<A> gen()) => new _Cons(head, gen);
-  factory LazyList.singleton(A elem) => new _Cons(elem, () => new LazyList.empty());
+  factory LazyList.singleton(A elem) =>
+      new _Cons(elem, () => new LazyList.empty());
 
   A get head;
   LazyList<A> get tail;
@@ -39,7 +40,7 @@ abstract class LazyList<A> extends IterableBase<A> {
   /**
    * Linear indexing.
    */
-  A operator[](int index);
+  A operator [](int index);
 
   LazyList<LazyList> tails();
 
@@ -47,7 +48,7 @@ abstract class LazyList<A> extends IterableBase<A> {
    * Cartesian product.
    */
   LazyList operator *(LazyList s) =>
-      this.map((x) => s.map((y) => new Pair(x,y))).concat();
+      this.map((x) => s.map((y) => new Pair(x, y))).concat();
 
   /**
    * [LazyList] is an applicative functor.
@@ -71,16 +72,19 @@ class _Empty<A> extends LazyList<A> {
   get head {
     throw new UnsupportedError("empty lazy lists don't have heads");
   }
+
   get tail {
     throw new UnsupportedError("empty lazy lists don't have tails");
   }
+
   LazyList operator +(LazyList s) => s;
   LazyList concat() => this;
   LazyList<B> map<B>(B f(A x)) => new LazyList.empty();
   LazyList<LazyList> tails() => new LazyList.singleton(new LazyList.empty());
-  operator[](int index) {
+  operator [](int index) {
     throw new RangeError(index);
   }
+
   LazyList _lazyPlus(LazyList gen()) => gen();
 }
 
@@ -100,25 +104,21 @@ class _Cons<A> extends LazyList<A> {
     return _cachedTail;
   }
 
-  LazyList operator +(LazyList s) =>
-    new LazyList.cons(head, () => tail + s);
+  LazyList operator +(LazyList s) => new LazyList.cons(head, () => tail + s);
 
   LazyList _lazyPlus(LazyList gen()) =>
-    new LazyList.cons(head, () => tail._lazyPlus(gen));
+      new LazyList.cons(head, () => tail._lazyPlus(gen));
 
   LazyList concat() {
     return (this.head as LazyList)._lazyPlus(() => this.tail.concat());
   }
 
-  LazyList<B> map<B>(B f(A x)) =>
-    new LazyList.cons(f(head), () => tail.map(f));
+  LazyList<B> map<B>(B f(A x)) => new LazyList.cons(f(head), () => tail.map(f));
 
   LazyList<LazyList> tails() =>
-    new LazyList.cons(this, () => this.tail.tails());
+      new LazyList.cons(this, () => this.tail.tails());
 
-  A operator[](int index) =>
-    (index == 0) ? head
-                 : tail[index - 1];
+  A operator [](int index) => (index == 0) ? head : tail[index - 1];
 }
 
 class _LazyListIterator<A> extends Iterator<A> {
@@ -127,7 +127,8 @@ class _LazyListIterator<A> extends Iterator<A> {
   _LazyListIterator(this.list);
 
   bool moveNext() {
-    if (list.isEmpty) return false;
+    if (list.isEmpty)
+      return false;
     else {
       current = list.head;
       list = list.tail;

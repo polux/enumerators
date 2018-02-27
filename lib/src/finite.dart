@@ -88,7 +88,7 @@ class _LIMult1 extends _LInstruction {
   final Finite toUpdate;
   final Finite fin;
 
-  _LIMult1(this.toUpdate, this.fin): super._(_LInstruction.LI_MULT1);
+  _LIMult1(this.toUpdate, this.fin) : super._(_LInstruction.LI_MULT1);
 }
 
 class _LIMult2 extends _LInstruction {
@@ -132,7 +132,7 @@ abstract class Finite<A> extends IterableBase<A> {
   /**
    * Cartesian product.
    */
-  Finite<Pair<A,B>> times<B>(Finite<B> fin) {
+  Finite<Pair<A, B>> times<B>(Finite<B> fin) {
     if (this._isEmpty) return new Finite.empty();
     if (fin._isEmpty) return new Finite.empty();
     if (this._isSingleton && fin._isSingleton) {
@@ -192,7 +192,7 @@ abstract class Finite<A> extends IterableBase<A> {
           val = fin._cachedLength;
           evalFin = false;
         } else {
-          switch(fin.tag) {
+          switch (fin.tag) {
             case EMPTY:
               val = fin._cachedLength = 0;
               evalFin = false;
@@ -267,7 +267,7 @@ abstract class Finite<A> extends IterableBase<A> {
 
     while (true) {
       if (evalFin) {
-        switch(fin.tag) {
+        switch (fin.tag) {
           case EMPTY:
             throw new RangeError(index);
             break;
@@ -339,7 +339,7 @@ abstract class Finite<A> extends IterableBase<A> {
   LazyList<A> toLazyList() {
     aux(i) => (i == this.length)
         ? new LazyList.empty()
-        : new LazyList.cons(this[i], () => aux(i+1));
+        : new LazyList.cons(this[i], () => aux(i + 1));
     return aux(0);
   }
 
@@ -392,9 +392,10 @@ class _MapFinite<A, B> extends Finite<B> {
   final Finite<A> fin;
   final Function fun;
 
-  _MapFinite(this.fin, B fun(A x)) : this.fun = fun, super._(Finite.MAP);
+  _MapFinite(this.fin, B fun(A x))
+      : this.fun = fun,
+        super._(Finite.MAP);
 }
-
 
 class _FiniteIterator<A> extends Iterator<A> {
   final Finite<A> finite;
