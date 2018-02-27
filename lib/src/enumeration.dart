@@ -41,7 +41,7 @@ class Enumeration<A> extends IterableBase<A> {
       new Enumeration(
           new Thunk(() => new LazyList.singleton(new Finite.singleton(x))));
 
-  factory Enumeration.fix(Enumeration f(Enumeration e)) {
+  factory Enumeration.fix(Enumeration<A> f(Enumeration<A> e)) {
     final enumeration = new Enumeration(null);
     final result = f(enumeration);
     enumeration.thunk = result.thunk;
@@ -80,7 +80,7 @@ class Enumeration<A> extends IterableBase<A> {
   /**
    * [Enumeration] is a functor.
    */
-  Enumeration map(f(A x)) =>
+  Enumeration<B> map<B>(B f(A x)) =>
       new Enumeration(
           new Thunk(() => parts.map((p) => p.map(f))));
 
@@ -116,12 +116,13 @@ class Enumeration<A> extends IterableBase<A> {
     return goY(yss.head, () => yss.tail);
   }
 
-  static _conv(LazyList<Finite> xs, LazyList<Finite> ys) {
+  static Finite<Pair<A,B>>
+      _conv<A,B>(LazyList<Finite<A>> xs, LazyList<Finite<B>> ys) {
     var result = new Finite.empty();
     if (ys.isEmpty) return result;
     while(true) {
       if (xs.isEmpty) return result;
-      result = result + (xs.head * ys.head);
+      result = result + xs.head.times(ys.head);
       ys = ys.tail;
       if (ys.isEmpty) return result;
       xs = xs.tail;
@@ -131,10 +132,15 @@ class Enumeration<A> extends IterableBase<A> {
   /**
    * Cartesian product.
    */
-  Enumeration<Pair> operator *(Enumeration<A> e) =>
-      new Enumeration<Pair>(
+  Enumeration<Pair<A,B>> times<B>(Enumeration<B> e) =>
+      new Enumeration<Pair<A,B>>(
           new Thunk(() =>
               _prod(this.parts, _reversals(e.parts))));
+
+  /**
+   * Cartesian product.
+   */
+  Enumeration<Pair> operator *(Enumeration e) => this.times(e);
 
 
   /**
@@ -155,37 +161,72 @@ class Enumeration<A> extends IterableBase<A> {
 
 // shortcuts
 
-Enumeration empty() => new Enumeration.empty();
+Enumeration<A> empty<A>() => new Enumeration.empty();
 
-Enumeration singleton(x) => new Enumeration.singleton(x);
+Enumeration<A> singleton<A>(A x) => new Enumeration.singleton(x);
 
-Enumeration fix(Enumeration f(Enumeration)) => new Enumeration.fix(f);
+Enumeration<A> fix<A>(Enumeration<A> f(Enumeration<A> e)) => new Enumeration.fix(f);
+
+Enumeration apply1<A1,B>(B f(A1 x1), Enumeration<A1> e1) => e1.map(f);
+
+Enumeration apply2<A1,A2,B>(
+    B f(A1 x1, A2 x2),
+    Enumeration<A1> e1,
+    Enumeration<A2> e2) =>
+  e1.times(e2).map((pair) {
+    return f(pair.fst, pair.snd);
+  });
+
+Enumeration apply3<A1,A2,A3,B>(
+    B f(A1 x1, A2 x2, A3 x3),
+    Enumeration<A1> e1,
+    Enumeration<A2> e2,
+    Enumeration<A3> e3) =>
+  e1.times(e2).times(e3).map((pair) {
+    final a1 = pair.fst;
+    return f(a1.fst, a1.snd, pair.snd);
+  });
+
+Enumeration apply4<A1,A2,A3,A4,B>(
+    B f(A1 x1, A2 x2, A3 x3, A4 x4),
+    Enumeration<A1> e1,
+    Enumeration<A2> e2,
+    Enumeration<A3> e3,
+    Enumeration<A4> e4) =>
+  e1.times(e2).times(e3).times(e4).map((pair) {
+    final a1 = pair.fst;
+    final a11 = a1.fst;
+    return f(a11.fst, a11.snd, a1.snd, pair.snd);
+  });
+
+Enumeration apply5<A1,A2,A3,A4,A5,B>(
+    B f(A1 x1, A2 x2, A3 x3, A4 x4, A5 x5),
+    Enumeration<A1> e1,
+    Enumeration<A2> e2,
+    Enumeration<A3> e3,
+    Enumeration<A4> e4,
+    Enumeration<A5> e5) =>
+  e1.times(e2).times(e3).times(e4).times(e5).map((pair) {
+    final a1 = pair.fst;
+    final a11 = a1.fst;
+    final a111 = a11.fst;
+    return f(a111.fst, a111.snd, a11.snd, a1.snd, pair.snd);
+  });
+
 
 Enumeration apply(Function f, Enumeration arg1, [Enumeration arg2,
                   Enumeration arg3, Enumeration arg4, Enumeration arg5]) {
-  if (arg2 == null) {
-    return arg1.map(f);
-  } else if (arg3 == null) {
-    return (arg1 * arg2).map((pair) {
-      return f(pair.fst, pair.snd);
-    });
-  } else if (arg4 == null) {
-    return ((arg1 * arg2) * arg3).map((pair) {
-      final a1 = pair.fst;
-      return f(a1.fst, a1.snd, pair.snd);
-    });
-  } else if (arg5 == null) {
-    return (((arg1 * arg2) * arg3) * arg4).map((pair) {
-      final a1 = pair.fst;
-      final a11 = a1.fst;
-      return f(a11.fst, a11.snd, a1.snd, pair.snd);
-    });
-  } else {
-    return ((((arg1 * arg2) * arg3) * arg4) * arg5).map((pair) {
-      final a1 = pair.fst;
-      final a11 = a1.fst;
-      final a111 = a11.fst;
-      return f(a111.fst, a111.snd, a11.snd, a1.snd, pair.snd);
-    });
+  if (arg5 == null) {
+    if (arg4 == null) {
+      if (arg3 == null) {
+        if (arg2 == null) {
+          return apply1(f, arg1);
+        }
+        return apply2(f, arg1, arg2);
+      }
+      return apply3(f, arg1, arg2, arg3);
+    }
+    return apply4(f, arg1, arg2, arg3, arg4);
   }
+  return apply5(f, arg1, arg2, arg3, arg4, arg5);
 }

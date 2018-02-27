@@ -17,7 +17,7 @@ class Pair<A,B> {
 
   int get hashCode => 31 * fst.hashCode + snd.hashCode;
 
-  bool operator ==(Pair<A,B> other) {
+  bool operator ==(Object other) {
     return (other is Pair<A,B>)
         && (fst == other.fst)
         && (snd == other.snd);

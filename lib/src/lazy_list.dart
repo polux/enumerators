@@ -34,7 +34,7 @@ abstract class LazyList<A> extends IterableBase<A> {
   /**
    * [LazyList] is a functor.
    */
-  LazyList map(f(A x));
+  LazyList<B> map<B>(B f(A x));
 
   /**
    * Linear indexing.
@@ -76,7 +76,7 @@ class _Empty<A> extends LazyList<A> {
   }
   LazyList operator +(LazyList s) => s;
   LazyList concat() => this;
-  LazyList map(f(A x)) => this;
+  LazyList<B> map<B>(B f(A x)) => new LazyList.empty();
   LazyList<LazyList> tails() => new LazyList.singleton(new LazyList.empty());
   operator[](int index) {
     throw new RangeError(index);
@@ -107,15 +107,10 @@ class _Cons<A> extends LazyList<A> {
     new LazyList.cons(head, () => tail._lazyPlus(gen));
 
   LazyList concat() {
-    // TODO(polux): Get rid of this little dance to convice the analyzer that
-    // head is a LazyList when it doesn't complain anymore about the sanest
-    // LazyList headAsList = this.head.
-    final untypedHead = this.head;
-    LazyList headAsList = untypedHead;
-    return headAsList._lazyPlus(() => this.tail.concat());
+    return (this.head as LazyList)._lazyPlus(() => this.tail.concat());
   }
 
-  LazyList map(f(A x)) =>
+  LazyList<B> map<B>(B f(A x)) =>
     new LazyList.cons(f(head), () => tail.map(f));
 
   LazyList<LazyList> tails() =>

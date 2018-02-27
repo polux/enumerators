@@ -36,17 +36,17 @@ Enumeration<String> stringsFrom(List<String> characters) {
   return charsLists.map((cs) => cs.join());
 }
 
-Enumeration<List> listsOf(Enumeration enumeration) {
+Enumeration<List<A>> listsOf<A>(Enumeration<A> enumeration) {
   final nils = singleton(nil);
   consesOf(e) => apply(cons, enumeration, e);
   final linkedLists = fix((e) => (nils + consesOf(e).pay()));
   return linkedLists.map((linkedList) => linkedList.toList());
 }
 
-Enumeration<Set> setsOf(Enumeration enumeration) {
+Enumeration<Set<A>> setsOf<A>(Enumeration<A> enumeration) {
   // bijection from lists of nats to sets of values
-  bij(list) {
-    var res = new Set();
+  Set<A> bij(List<int> list) {
+    var res = new Set<A>();
     int sum = -1;
     for (final x in list) {
       sum += 1 + x;
@@ -57,9 +57,9 @@ Enumeration<Set> setsOf(Enumeration enumeration) {
   return listsOf(nats).map(bij);
 }
 
-Enumeration<Map> mapsOf(Enumeration keys, Enumeration values) {
+Enumeration<Map<K,V>> mapsOf<K,V>(Enumeration<K> keys, Enumeration<V> values) {
   // bijection from lists of (nat x value) to maps of (key x value)
-  bij(assocs) {
+  Map<K,V> bij(List<Pair<int,V>> assocs) {
     var res = new Map();
     int sum = -1;
     for (final assoc in assocs) {
@@ -68,8 +68,7 @@ Enumeration<Map> mapsOf(Enumeration keys, Enumeration values) {
     }
     return res;
   }
-  return listsOf(nats * values).map(bij);
-
+  return listsOf(nats.times(values)).map(bij);
 }
 
 Enumeration<List> productsOf(List<Enumeration> enumerations) {
@@ -81,14 +80,6 @@ Enumeration<List> productsOf(List<Enumeration> enumerations) {
 }
 
 /* implementation */
-
-Map _toMap(List<Pair> assocs) {
-  var res = new Map();
-  for (final assoc in assocs) {
-    res[assoc.fst] = assoc.snd;
-  }
-  return res;
-}
 
 Enumeration<bool> _mkBools() {
   return singleton(true) + singleton(false);

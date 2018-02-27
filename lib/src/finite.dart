@@ -112,11 +112,10 @@ abstract class Finite<A> extends IterableBase<A> {
 
   bool get _isEmpty => (tag == Finite.EMPTY);
   bool get _isSingleton => (tag == Finite.SINGLETON);
-  bool get _isAdd => (tag == Finite.ADD);
-  bool get _isMult => (tag == Finite.MULT);
   bool get _isMap => (tag == Finite.MAP);
 
   static final Finite FINITE_EMPTY = new _EmptyFinite();
+
   factory Finite.empty() => FINITE_EMPTY;
 
   factory Finite.singleton(A x) => new _SingletonFinite<A>(x);
@@ -125,36 +124,41 @@ abstract class Finite<A> extends IterableBase<A> {
    * Union.
    */
   Finite<A> operator +(Finite<A> fin) {
-    if (this._isEmpty) return fin;
-    if (fin._isEmpty) return this;
+    if (this is _EmptyFinite<A>) return fin;
+    if (fin is _EmptyFinite<A>) return this;
     return new _AddFinite(this, fin);
   }
 
   /**
    * Cartesian product.
    */
-  Finite<Pair> operator *(Finite fin) {
-    if (this._isEmpty) return FINITE_EMPTY;
-    if (fin._isEmpty) return FINITE_EMPTY;
+  Finite<Pair<A,B>> times<B>(Finite<B> fin) {
+    if (this._isEmpty) return new Finite.empty();
+    if (fin._isEmpty) return new Finite.empty();
     if (this._isSingleton && fin._isSingleton) {
-      _SingletonFinite self = this;
-      _SingletonFinite other = fin;
+      _SingletonFinite self = this as _SingletonFinite<A>;
+      _SingletonFinite other = fin as _SingletonFinite<B>;
       return new _SingletonFinite(new Pair(self.val, other.val));
     }
     return new _MultFinite(this, fin);
   }
 
   /**
+   * Cartesian product.
+   */
+  Finite<Pair> operator *(Finite fin) => this.times(fin);
+
+  /**
    * [Finite] is a functor.
    */
-  Finite map(f(A x)) {
-    if (this._isEmpty) return this;
+  Finite<B> map<B>(B f(A x)) {
+    if (this._isEmpty) return new Finite.empty();
     if (this._isSingleton) {
-      _SingletonFinite self = this;
+      _SingletonFinite self = this as _SingletonFinite<A>;
       return new _SingletonFinite(f(self.val));
     }
     if (this._isMap) {
-      _MapFinite self = this;
+      _MapFinite self = this as _MapFinite<A, B>;
       return new _MapFinite(self.fin, (x) => f(self.fun(x)));
     }
     return new _MapFinite(this, f);
@@ -198,16 +202,19 @@ abstract class Finite<A> extends IterableBase<A> {
               evalFin = false;
               break;
             case MAP:
-              stack.add(new _LIMap(fin));
-              fin = fin.fin;
+              final mapFin = fin as _MapFinite;
+              stack.add(new _LIMap(mapFin));
+              fin = mapFin.fin;
               break;
             case ADD:
-              stack.add(new _LIAdd1(fin.left, fin.right));
-              fin = fin.left;
+              final addFin = fin as _AddFinite;
+              stack.add(new _LIAdd1(addFin.left, addFin.right));
+              fin = addFin.left;
               break;
             case MULT:
-              stack.add(new _LIMult1(fin.left, fin.right));
-              fin = fin.left;
+              final multFin = fin as _MultFinite;
+              stack.add(new _LIMult1(multFin.left, multFin.right));
+              fin = multFin.left;
               break;
           }
         }
@@ -217,27 +224,32 @@ abstract class Finite<A> extends IterableBase<A> {
           case _LInstruction.LI_DONE:
             return val;
           case _LInstruction.LI_ADD1:
-            fin = instr.fin;
+            final addInstr = instr as _LIAdd1;
+            fin = addInstr.fin;
             stack.add(new _LIAdd2(fin, val));
-            instr.toUpdate._cachedLength = val;
+            addInstr.toUpdate._cachedLength = val;
             evalFin = true;
             break;
           case _LInstruction.LI_ADD2:
-            instr.toUpdate._cachedLength = val;
-            val += instr.val;
+            final addInstr = instr as _LIAdd2;
+            addInstr.toUpdate._cachedLength = val;
+            val += addInstr.val;
             break;
           case _LInstruction.LI_MULT1:
-            fin = instr.fin;
+            final multInstr = instr as _LIMult1;
+            fin = multInstr.fin;
             stack.add(new _LIMult2(fin, val));
-            instr.toUpdate._cachedLength = val;
+            multInstr.toUpdate._cachedLength = val;
             evalFin = true;
             break;
           case _LInstruction.LI_MULT2:
-            instr.toUpdate._cachedLength = val;
-            val *= instr.val;
+            final multInstr = instr as _LIMult2;
+            multInstr.toUpdate._cachedLength = val;
+            val *= multInstr.val;
             break;
           case _LInstruction.LI_MAP:
-            instr.toUpdate._cachedLength = val;
+            final mapInstr = instr as _LIMap;
+            mapInstr.toUpdate._cachedLength = val;
             break;
         }
       }
@@ -246,7 +258,7 @@ abstract class Finite<A> extends IterableBase<A> {
 
   A operator [](int index) => _eval(this, index);
 
-  static Object _eval(Finite finite, int index) {
+  static A _eval<A>(Finite<A> finite, int index) {
     bool evalFin = true;
     final stack = <_EInstruction>[new _EIDone()];
 
@@ -260,32 +272,36 @@ abstract class Finite<A> extends IterableBase<A> {
             throw new RangeError(index);
             break;
           case SINGLETON:
+            final singletonFin = fin as _SingletonFinite;
             if (index == 0) {
-              val = fin.val;
+              val = singletonFin.val;
               evalFin = false;
             } else {
               throw new RangeError(index);
             }
             break;
           case ADD:
-            if (index < fin.left.length) {
-              fin = fin.left;
+            final addFin = fin as _AddFinite;
+            if (index < addFin.left.length) {
+              fin = addFin.left;
             } else {
-              final left = fin.left;
-              fin = fin.right;
+              final left = addFin.left;
+              fin = addFin.right;
               index = index - left.length;
             }
             break;
           case MULT:
-            int q = index ~/ fin.right.length;
-            int r = index % fin.right.length;
+            final multFin = fin as _MultFinite;
+            int q = index ~/ multFin.right.length;
+            int r = index % multFin.right.length;
             index = q;
-            stack.add(new _EIPair1(fin.right, r));
-            fin = fin.left;
+            stack.add(new _EIPair1(multFin.right, r));
+            fin = multFin.left;
             break;
           case MAP:
-            stack.add(new _EIMap(fin.fun));
-            fin = fin.fin;
+            final mapFin = fin as _MapFinite;
+            stack.add(new _EIMap(mapFin.fun));
+            fin = mapFin.fin;
             break;
         }
       } else {
@@ -294,16 +310,19 @@ abstract class Finite<A> extends IterableBase<A> {
           case _EInstruction.EI_DONE:
             return val;
           case _EInstruction.EI_PAIR1:
-            fin = instr.fin2;
-            index = instr.r;
+            final pairInstr = instr as _EIPair1;
+            fin = pairInstr.fin2;
+            index = pairInstr.r;
             stack.add(new _EIPair2(val));
             evalFin = true;
             break;
           case _EInstruction.EI_PAIR2:
-            val = new Pair(instr.snd, val);
+            final pairInstr = instr as _EIPair2;
+            val = new Pair(pairInstr.snd, val);
             break;
           case _EInstruction.EI_MAP:
-            val = instr.fun(val);
+            final mapInstr = instr as _EIMap;
+            val = mapInstr.fun(val);
             break;
         }
       }
@@ -362,18 +381,18 @@ class _AddFinite<A> extends Finite<A> {
   _AddFinite(this.left, this.right) : super._(Finite.ADD);
 }
 
-class _MultFinite<A> extends Finite<A> {
+class _MultFinite<A, B> extends Finite<Pair<A, B>> {
   final Finite<A> left;
-  final Finite<A> right;
+  final Finite<B> right;
 
   _MultFinite(this.left, this.right) : super._(Finite.MULT);
 }
 
-class _MapFinite<A> extends Finite<A> {
+class _MapFinite<A, B> extends Finite<B> {
   final Finite<A> fin;
   final Function fun;
 
-  _MapFinite(this.fin, fun(A x)) : super._(Finite.MAP), this.fun = fun;
+  _MapFinite(this.fin, B fun(A x)) : this.fun = fun, super._(Finite.MAP);
 }
 
 
