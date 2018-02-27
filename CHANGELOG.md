@@ -1,5 +1,9 @@
 # Enumerators Changelog
 
+## 0.6.0
+
+- Made strong mode compliant
+
 ## 0.5.5
 
 - Added a toplevel `apply` function to enumearors
