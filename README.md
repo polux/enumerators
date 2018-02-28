@@ -1,7 +1,5 @@
 # Random Access Enumerations
 
-[![Build Status](https://drone.io/github.com/polux/enumerators/status.png)](https://drone.io/github.com/polux/enumerators/latest)
-
 A library which allows for randomized or exhaustive testing of Dart functions
 by providing random access enumerations of Dart datatypes. It is heavily
 inspired by Jonas Duregård's
@@ -18,7 +16,8 @@ however up to the user to provide the glorified while loops that constitute the
 
 ## Documentation
 
-The only documentation so far is this README and the [API reference](http://goo.gl/UZX3qD).
+The only documentation so far is this README and the
+[API reference](https://www.dartdocs.org/documentation/enumerators/latest/index.html).
 
 ## Simple Usage
 
